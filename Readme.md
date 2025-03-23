@@ -10,7 +10,8 @@ quarto render Readme.md --to pdf
 
 | Semester:      | FS25                                     |
 |:---------------|:---------------------------------------- |
-| **Data:**      | GPS and sensor data from 130 birds |
+| **Data:** | Positional data from 115 tagged individuals |
+| **Title:** | Habitat use and movement patterns of the spotted Nutcracker (Nucifraga caryocatactes) |
 | **Student 1:** | Robin Merz |
 | **Student 2:** | Claude Widmer |
 |**Github:**|[Github Repository](https://github.com/widmerc/GEO880_Project)|
