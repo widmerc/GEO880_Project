@@ -13,6 +13,7 @@ quarto render Readme.md --to pdf
 | **Data:**      | GPS and sensor data from 130 birds |
 | **Student 1:** | Robin Merz |
 | **Student 2:** | Claude Widmer |
+|**Github:**|[Github Repository](https://github.com/widmerc/GEO880_Project)|
 
 ![Tannenhäher (Vogelwarte.ch)](./data/Tannenhäher.jpg)
 
