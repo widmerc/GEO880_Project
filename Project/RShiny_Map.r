@@ -6,6 +6,8 @@ library(tmap)
 library(tidyr)
 library(rlang)
 
+#Git Test <- das habe ich neu gemacht
+
 # Load the new bird GPS data
 bird_data <- read.csv("data/NuCra_Davos_all_data_2025-02-07_V2.csv")
 
