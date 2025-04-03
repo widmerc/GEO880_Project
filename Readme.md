@@ -25,13 +25,14 @@ quarto render Readme.md --to pdf
 
 Even though the spotted Nutcracker (Nucifraga caryocatactes) is locally common in many areas across the Eurasian continent, little is known about many aspects of the species (Billerman et al. 2020).
 During this project we will analyze GPS and sensor data from 115 tagged individuals to gain insights on their habitat use and movements across various life cycle phases.
-The aim of the study will be to identify potential seasonal differences in habitat use as well as the identification of important areas within individual home-ranges (harvesting-, caching-, nesting sites).
+The aim of the study will be to identify potential seasonal differences in habitat use as well as the identification of important areas within individual home-ranges (harvesting-, caching-, nesting sites). -> Annahme, einfach gut differenzieren.
 In a last step, the similarities between individuals, as well as potential overlaps of home-ranges will be determined.
-The results will be presented in an interactive RShiny application, allowing users to explore movements and statistics.
+The results will be presented in an interactive RShiny application, allowing users to explore movements and statistics. -> Wenn nicht mit shiny, dann ist es auch hilfreich.
+
 
 ## Research Questions
 <!-- (50-60 words) -->
--   How do the movement patterns of birds differ during various life cycle phases?
+-   How do the movement patterns of birds differ during various life cycle phases? (gut)
 -   What differences exist between adult and juvenile movement patterns?
 -   Can machine learning help us to identify important areas within individual home-ranges?
 -   To what extent do individual home ranges overlap seasonally?
@@ -64,13 +65,13 @@ Key methods include:
 
 -   **Clustering analysis:** We identify important areas like nesting, caching, and harvesting sites by grouping locations where birds spend a lot of time, using methods like DBSCAN and k-Means.
 
--   **Machine learning integration:** We train models to detect movement patterns in GPS data, helping us spot behaviors like seasonal shifts and specific site selections.
+(-   **Machine learning integration:** We train models to detect movement patterns in GPS data, helping us spot behaviors like seasonal shifts and specific site selections.)
 
 -   **Time-series analysis:** We analyze how the birds' movements change over time, especially during different seasons, to detect behavior changes related to food harvesting and caching, as well as breeding.
 
 -   **Overlap analysis:** We compare the areas used by different birds to see if they share home ranges as well as important areas within them, helping us to understand competition and interactions.
 
--   **Similarity analysis of GPS tracks:** We examine the movement paths of birds to group those with similar behaviors.
+(-   **Similarity analysis of GPS tracks:** We examine the movement paths of birds to group those with similar behaviors.)
 
 
 ## R concepts
@@ -101,8 +102,8 @@ This will enable users to better understand movement patterns and make informed 
 
 <!-- Which questions would you like to discuss at the coaching session? -->
 
--   What additional contextual data might be relevant for our analysis?
--   Is the Rshiny Approach suitable for this Semester Project?
+-   What additional contextual data might be relevant for our analysis? -> Mischgrad Wald / Höhe / Baumartenanteil
+-   Is the Rshiny Approach suitable for this Semester Project? Ja.
 
 ## Use of AI
 

@@ -22,11 +22,9 @@ bibliography: bibliography.bib
 
 ## Introduction
 
-@laube2011 investigate how temporal scale affects the calculation of movement parameters (speed, sinuosity and turning angle) of animal trajectories. 
-
 ## Material and Methods
 
-## Results
+## Results 
 
 ## Discussion
 

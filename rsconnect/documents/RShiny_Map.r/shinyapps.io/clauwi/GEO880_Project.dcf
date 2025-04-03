@@ -1,0 +1,12 @@
+name: GEO880_Project
+title: GEO880_Project
+username: clauwi
+account: clauwi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14393584
+bundleId: 10037587
+url: https://clauwi.shinyapps.io/GEO880_Project/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
