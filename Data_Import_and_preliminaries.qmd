@@ -1,0 +1,147 @@
+---
+title: "Data Import and Preliminaries"
+author: "Robin Merz"
+format: html
+execute: 
+  cache: true
+---
+
+```{r}
+library(readr)
+library(dbscan)
+library(sf)
+library(tmap)
+library(tidyverse)
+```
+
+
+```{r}
+#Import Data
+Nutcracker <- read_csv("Nutcracker_Tracks.csv")
+
+#change to sf-object
+tracks <- st_as_sf(Nutcracker,
+                   coords = c("longitude", "latitude"),
+                   crs = 4326)
+```
+
+
+```{r}
+# IDs, die entfernt werden sollen
+remove_ids <- c(48325, 15381, 15382, 15383, 45363)
+
+# Gefilterter Datensatz ohne diese IDs
+tracks <- tracks %>% 
+  filter(!...1 %in% remove_ids)
+
+#transform in right coordinate system
+tracks_2056 <- st_transform(tracks, 2056)
+
+tracks_2056 <- tracks_2056 |> 
+  mutate(latitude = st_coordinates(tracks_2056)[,1],
+                 longitude = st_coordinates(tracks_2056)[,2],)
+
+tracks_2056_df <- st_drop_geometry(tracks_2056)
+
+# Speichern als CSV
+write.csv(tracks_2056_df, "tracks_2056_export.csv", row.names = FALSE)
+
+str(tracks_2056_df)
+```
+
+
+```{r}
+#set map mode to view
+tmap_mode("view")
+
+# #visualize points
+tm_shape(tracks_2056) +
+   tm_dots()
+
+ggplot(tracks_2056) +
+  geom_point(aes(x = st_coordinates(tracks_2056)[,1],
+                 y = st_coordinates(tracks_2056)[,2],
+                 color = id),
+             alpha = 0.7) +  # Transparenz für bessere Sichtbarkeit
+  scale_color_viridis_d() +  # Farbpalette für bessere Unterscheidung
+  labs(x = "Longitude", y = "Latitude") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+winter_movements <- tracks_2056 |> 
+  filter(month %in% c("11", "12", "01"))
+
+spring_movements <- tracks_2056 |> 
+  filter(month %in% c("02", "03", "04"))
+
+summer_movements <- tracks_2056 |> 
+  filter(month %in% c("05", "06", "07"))
+
+autumn_movements <- tracks_2056 |> 
+  filter(month %in% c("08", "09", "10"))
+
+tm_shape(spring_movements) +
+  tm_dots()
+
+```
+
+```{r}
+
+
+# 1. Stelle sicher: x und y als numeric
+spring_movements <- spring_movements |>
+  mutate(x = as.numeric(st_coordinates(geometry)[,1]),
+         y = as.numeric(st_coordinates(geometry)[,2])) |>
+  filter(!is.na(x) & !is.na(y))  # NAs entfernen
+
+# Optional: nochmal testen
+stopifnot(is.numeric(spring_movements$x), is.numeric(spring_movements$y))
+
+# 2. Clustering
+eps_dist <- 100  # in Metern
+
+clustered_data <- spring_movements |>
+  group_by(id) |>
+  group_modify(~ {
+    # Hier ganz sicher umwandeln:
+    coords <- .x |> select(x, y) |> mutate_all(as.numeric) |> as.matrix()
+
+    # Noch einmal Sicherheit:
+    stopifnot(is.numeric(coords[,1]), is.numeric(coords[,2]))
+
+    cl <- dbscan(coords, eps = eps_dist, minPts = 3)
+    .x$cluster_id <- cl$cluster
+    .x
+  }) |>
+  ungroup()
+
+
+spring_movements_points <- spring_movements |> 
+  filter(st_geometry_type(geometry) == "POINT") |> 
+  mutate(coords = st_coordinates(geometry)) |>
+  mutate(
+    x = as.numeric(coords[, 1]),
+    y = as.numeric(coords[, 2])
+  ) |>
+  select(-coords) |> 
+  st_drop_geometry()  # Geometrie entfernen, falls nicht mehr gebraucht
+
+eps_dist <- 100  # Distanzschwelle in Metern
+
+clustered_data <- spring_movements_points |> 
+  filter(!is.na(x), !is.na(y)) |> 
+  group_by(id) |> 
+  group_modify(~ {
+    coords <- .x |> select(x, y) |> as.matrix()
+    cl <- dbscan(coords, eps = eps_dist, minPts = 3)
+    .x$cluster_id <- cl$cluster
+    .x
+  }) |> 
+  ungroup()
+
+ggplot(clustered_data, aes(x = x, y = y)) +
+  geom_point(aes(color = id, shape = factor(cluster_id)), size = 2, alpha = 0.8) +
+  labs(color = "Individuum", shape = "Cluster") +
+  theme_minimal()
+```
+
