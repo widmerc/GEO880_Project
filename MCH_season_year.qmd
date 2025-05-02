@@ -1,0 +1,388 @@
+---
+title: "MCH_season_year"
+format: html
+editor: visual
+execute: 
+  warning: false
+  message: false
+---
+
+## Setup
+
+```{r, cache = TRUE}
+#Import necessary libraries
+library(readr)
+library(dplyr)
+library(stringr)
+library(dbscan)
+library(sf)
+library(tmap)
+library(tidyverse)
+library(leaflet)
+library(htmltools)
+```
+
+## Data import and preliminaries
+
+**What does this chunk do?**
+
+-   read in data
+
+-   remove outliers/wrong datapoints (preliminary screened)
+
+-   transforms data into LV95+ (from WGS84)
+
+-   extracts coordinates & defines season in which datapoint was stored
+
+-   writes a single file for each individual, year and season (for later clustering)
+
+**What does the data contain?**
+
+The data contains GPS data points of 115 tagged birds. Each data point contains following information:
+
+ID, longtidude, latitude, altitude, number of satellites, datetime, tag type, year, month, season, breeding season (yes, no), ring Nr., physical measurements, stage at capture, timediff, steplength, stepsize, current stage, date, number of days, dates spanned per year.
+
+```{r, cache = TRUE}
+# Import Data
+Nutcracker <- read_csv("Nutcracker_Tracks.csv")
+
+# remove outliers
+remove_ids <- c(48325, 15381, 15382, 15383, 45363)
+Nutcracker <- Nutcracker %>% filter(!...1 %in% remove_ids)
+
+# change to sf object and transformation into LV95+
+tracks <- st_as_sf(Nutcracker, coords = c("longitude", "latitude"), crs = 4326) %>%
+  st_transform(2056)
+
+# extraction of coordinates
+coords <- st_coordinates(tracks)
+tracks <- tracks %>%
+  mutate(longitude = coords[, 1],
+         latitude = coords[, 2]) %>%
+  mutate(month = sprintf("%02d", as.integer(month)), #assingment of season
+         year = as.character(year),
+         season = case_when(
+           month %in% c("11", "12", "01", "02") ~ "winter",
+           month %in% c("03", "04", "05", "06") ~ "spring",
+           TRUE ~ "summer"
+         ))
+
+# drop geometry
+tracks_df <- st_drop_geometry(tracks)
+
+# create folder
+dir.create("season_year", showWarnings = FALSE)
+
+# write .csv for each individual, season and year combination
+tracks_df %>%
+  group_by(id, season, year) %>%
+  group_split() %>%
+  walk(~ {
+    sub <- .
+    id <- unique(sub$id)
+    season <- unique(sub$season)
+    year <- unique(sub$year)
+    filename <- sprintf("season_year/%s_%s_%s_tracks_2056.csv", id, season, year)
+    write_csv(sub, filename)
+  })
+
+```
+
+## Clustering
+
+**What does this chunk do?**
+
+-   reads in all previously generated files (id, season, year)
+
+-   dbscan clustering for each bird (assigns each datapoint to a cluster, if within a given distance to other points and if enough points in cluster, see execution for more)
+
+-   Each cluster number is stored with a give prefix, so that after merging the files, the clusters can still be assigned to a single bird (wihin a single season and year)
+
+-   cluster files are stored
+
+-   for each year and season a file is generated, which contains all cluster files of this season and year
+
+```{r, cache = TRUE}
+cluster <- function(eps_value = 50, minPts_value = 20) {
+  dir.create("cluster_season_year", showWarnings = FALSE) #create new folder
+  
+  #create name strings for output files
+  param_string <- paste0(minPts_value, "p_", eps_value, "m")
+  output_prefix <- paste0("clustered_", param_string, "_")
+  
+  #read in all files from previous chunk
+  file_list <- list.files("season_year", pattern = "*.csv", full.names = TRUE)
+  all_data <- list()
+  
+  #check if files contain values in longitude and latitude
+  for (file in file_list) {
+    data <- read_csv(file)
+    if (!all(c("longitude", "latitude") %in% names(data))) next
+    
+    #DBSCAN clustering
+    clustering_result <- dbscan(data[, c("longitude", "latitude")], eps = eps_value, minPts = minPts_value)
+    
+    #create prefixes for each clusternumber
+    parts <- str_split(basename(file), "_")[[1]]
+    vogelname <- parts[1]
+    season <- parts[2]
+    year <- parts[3]
+  
+    #assign name to cluster, if cluster = 0 declare as noise
+    data$cluster <- ifelse(clustering_result$cluster == 0, "noise",
+                           paste0(vogelname, "_", season, "_", year, "_", sprintf("%02d", clustering_result$cluster)))
+    
+    #write output file for each season, year and bird
+    output_file <- file.path("cluster_season_year", paste0(output_prefix, basename(file)))
+    write_csv(data, output_file)
+    all_data[[length(all_data) + 1]] <- data
+  }
+
+  # make sure that all columns have the same type before binding
+  all_df <- all_data %>%
+  lapply(function(df) {
+    df %>%
+      mutate(
+        id = as.character(id),
+        year = as.character(year),
+        month = as.character(month),
+        satellites = as.character(satellites)
+      )
+  }) %>% #create single files, containing all data points of each year and season
+  bind_rows()
+  seasons <- unique(all_df$season)
+  years <- unique(all_df$year)
+  
+  for (s in seasons) {
+    for (y in years) {
+      subset <- all_df %>% filter(season == s, year == y)
+      if (nrow(subset) > 0) {
+        write_csv(subset, paste0(s, "_", y, "_season_data_", param_string, ".csv"))
+      }
+    }
+  }
+  
+  for (s in seasons) {
+    season_subset <- all_df %>% filter(season == s)
+    if (nrow(season_subset) > 0) {
+      write_csv(season_subset, paste0(s, "_all_years_season_data_", param_string, ".csv"))  # NEU
+    }
+  }
+}
+
+```
+
+## Minimum convex polygon
+
+**What does this chunk do?**
+
+-   previously generated files (containing all datapoints of a given season and year) are read in
+
+-   data points not belonging to a cluster (aka noise) are removed by filtering the ones belonging to a cluster
+
+-   year is singled out of the file name for later purpose
+
+-   minimum convex hull is calculated
+
+-   area of minimum convex hull is calculated
+
+-   minimum convex hull is represented in a leaflet (containing information about the year, the size and the bird)
+
+```{r, cache = TRUE}
+
+mcp_karte <- function(param_string, season = "spring", year = "2023", crs_epsg = 2056) {
+  input_file <- paste0(season, "_", year, "_season_data_", param_string, ".csv")
+  
+  if (!file.exists(input_file)) {
+    stop(paste("Datei nicht gefunden:", input_file))
+  }
+  
+  data <- read_csv(input_file)
+  data <- data %>% filter(cluster != "noise")
+  data <- data %>% mutate(year = str_split(cluster, "_", simplify = TRUE)[, 3])
+  
+  required_cols <- c("tag.type", "ring_no", "stage.current")
+  if (!all(required_cols %in% names(data))) {
+    stop("Eine oder mehrere der folgenden Spalten fehlen: tag.type, ring.nr, current_stage")
+  }
+  
+  data_sf <- st_as_sf(data, coords = c("longitude", "latitude"), crs = crs_epsg)
+  
+  cluster_mcp <- data_sf %>%
+    group_by(cluster, id, year) %>%
+    summarise(
+      geometry = st_combine(geometry),
+      tag.type = first(tag.type),
+      ring.nr = first(ring_no),
+      current_stage = first(stage.current),
+      .groups = "drop"
+    ) %>%
+    st_convex_hull()
+  
+  cluster_mcp <- cluster_mcp %>%
+    mutate(
+      id = factor(id, levels = sort(unique(id))),
+      area_m2 = round(as.numeric(st_area(geometry)), 1)
+    )
+  
+  # Overlap-Berechnung
+  overlap_total <- numeric(nrow(cluster_mcp))
+  overlap_details <- character(nrow(cluster_mcp))
+  
+  for (i in seq_len(nrow(cluster_mcp))) {
+    current_poly <- cluster_mcp[i, ]
+    current_area <- st_area(current_poly)
+    
+    text_list <- c()
+    total_overlap_area <- 0
+    
+    for (j in seq_len(nrow(cluster_mcp))) {
+      if (i == j) next
+      
+      other_poly <- cluster_mcp[j, ]
+      inters <- st_intersection(current_poly, other_poly)
+      
+      if (nrow(inters) > 0) {
+        overlap_area <- st_area(inters)
+        perc_overlap <- round(as.numeric(overlap_area) / as.numeric(current_area) * 100, 1)
+        
+        if (perc_overlap > 0) {
+          text_list <- c(text_list, paste0("+ ", other_poly$id, ": ", perc_overlap, "%"))
+          total_overlap_area <- total_overlap_area + as.numeric(overlap_area)
+        }
+      }
+    }
+    
+    overlap_total[i] <- round(total_overlap_area / as.numeric(current_area) * 100, 1)
+    overlap_details[i] <- if (length(text_list) > 0) {
+      paste(text_list, collapse = "<br>")
+    } else {
+      "Keine Überlappung"
+    }
+  }
+  
+  cluster_mcp$overlap_percent <- overlap_total
+  cluster_mcp$overlap_with <- overlap_details
+  
+  # Transformiere in WGS84 für Leaflet
+  cluster_mcp <- st_transform(cluster_mcp, crs = 4326)
+  
+  # Farben pro Individuum
+  farben <- colorFactor(palette = "Set1", domain = cluster_mcp$id)
+  
+  # Erstelle die Pop-ups mit HTML
+  popups <- paste0(
+    "<b>Individual:</b> ", cluster_mcp$id, "<br>",
+    "<b>Year:</b> ", cluster_mcp$year, "<br>",
+    "<b>Area (m²):</b> ", cluster_mcp$area_m2, "<br>",
+    "<b>Gesamtüberlappung (%):</b> ", cluster_mcp$overlap_percent, "<br>",
+    "<b>Überlappung mit:</b><br>", cluster_mcp$overlap_with, "<br><br>",
+    "<b>Tag type:</b> ", cluster_mcp$tag.type, "<br>",
+    "<b>Ring number:</b> ", cluster_mcp$ring.nr, "<br>",
+    "<b>Stage:</b> ", cluster_mcp$current_stage
+  )
+  
+  # Zeichne Leaflet-Karte
+  leaflet(cluster_mcp) %>%
+  addProviderTiles(providers$OpenStreetMap, group = "OpenStreetMap") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Luftbild") %>%
+  addPolygons(
+    fillColor = ~farben(id),
+    color = "#444444",
+    weight = 1,
+    fillOpacity = 0.6,
+    popup = popups,
+    label = ~paste("Individuum:", id),
+    group = "Polygone"
+  ) %>%
+  addLayersControl(
+    baseGroups = c("OpenStreetMap", "Luftbild"),
+    overlayGroups = c("Polygone"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+  addLegend("bottomright", pal = farben, values = ~id, title = "Individuum")
+
+}
+
+```
+
+## Execution clustering
+
+**What does this chunk do?**
+
+To see how different settings result in different cluster numbers and sizes, the clustering function has been ran multiple times with different settings. The eps_value gives the maximum distance which is allowed between different points belonging to the same cluster. The minPts_value determines how many points have to be in close proximity to each other, so that they are counted as cluster. (Commented out to save time in rendering)
+
+```{r}
+# cluster(eps_value = 50, minPts_value = 10)
+# cluster(eps_value = 50, minPts_value = 20)
+# cluster(eps_value = 50, minPts_value = 30)
+# cluster(eps_value = 50, minPts_value = 40)
+# cluster(eps_value = 25, minPts_value = 10)
+# cluster(eps_value = 25, minPts_value = 20)
+# cluster(eps_value = 25, minPts_value = 30)
+# cluster(eps_value = 25, minPts_value = 40)
+```
+
+## Execution Minimum convex hull calculation
+
+**What does this chunk do?**
+
+For exploratory purposes, multiple interactive maps where generated, which show the generated clusters for different settings, years and seasons. When clicking on polygons popup-information pop up, displaying the year, the id of the bird and the area of the cluster.
+
+```{r, cache = TRUE}
+mcp_karte("10p_50m", "spring", "2022")
+mcp_karte("10p_50m", "spring", "2022")
+mcp_karte("20p_50m", "spring", "2022")
+mcp_karte("30p_50m", "spring", "2022")
+mcp_karte("40p_50m", "spring", "2022")
+mcp_karte("10p_25m", "spring", "2022")
+mcp_karte("20p_25m", "spring", "2022")
+mcp_karte("30p_25m", "spring", "2022")
+mcp_karte("40p_25m", "spring", "2022")
+
+mcp_karte("10p_50m", "spring", "2023")
+mcp_karte("20p_50m", "spring", "2023")
+mcp_karte("30p_50m", "spring", "2023")
+mcp_karte("40p_50m", "spring", "2023")
+mcp_karte("10p_25m", "spring", "2023")
+mcp_karte("20p_25m", "spring", "2023")
+mcp_karte("30p_25m", "spring", "2023")
+mcp_karte("40p_25m", "spring", "2023")
+
+mcp_karte("10p_50m", "spring", "2024")
+mcp_karte("20p_50m", "spring", "2024")
+mcp_karte("30p_50m", "spring", "2024")
+mcp_karte("40p_50m", "spring", "2024")
+mcp_karte("10p_25m", "spring", "2024")
+mcp_karte("20p_25m", "spring", "2024")
+mcp_karte("30p_25m", "spring", "2024")
+mcp_karte("40p_25m", "spring", "2024")
+
+mcp_karte("10p_50m", "spring", "all_years")
+mcp_karte("20p_50m", "spring", "all_years")
+mcp_karte("30p_50m", "spring", "all_years")
+mcp_karte("40p_50m", "spring", "all_years")
+mcp_karte("10p_25m", "spring", "all_years")
+mcp_karte("20p_25m", "spring", "all_years")
+mcp_karte("30p_25m", "spring", "all_years")
+mcp_karte("40p_25m", "spring", "all_years")
+
+mcp_karte("10p_50m", "summer", "all_years")
+mcp_karte("20p_50m", "summer", "all_years")
+mcp_karte("30p_50m", "summer", "all_years")
+mcp_karte("40p_50m", "summer", "all_years")
+mcp_karte("10p_25m", "summer", "all_years")
+mcp_karte("20p_25m", "summer", "all_years")
+mcp_karte("30p_25m", "summer", "all_years")
+mcp_karte("40p_25m", "summer", "all_years")
+```
+
+## To-Do:
+
+-   check overlaps between years and seasons (among individuals)
+
+-   check overlaps between individuals and seasons
+
+-   decide on which settings for dbscan
+
+-   create web-application
