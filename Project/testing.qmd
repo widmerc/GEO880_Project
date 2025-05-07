@@ -19,7 +19,9 @@ bird_data <- read.csv("data/NuCra_Davos_all_data_2025-02-07_V2.csv")
 
 # Check and handle missing values if any
 bird_data <- bird_data %>% drop_na(longitude, latitude, datetime)
-
+remove_ids <- c(48325, 15381, 15382, 15383, 45363, 7949)
+bird_data <- bird_data %>% filter(!X %in% remove_ids)
+# bird_data <- bird_data %>% filter(id %in% c(6526))
 # Keep only the first 1000 points
 #bird_data <- bird_data %>% slice(1:10000)
 
@@ -30,6 +32,9 @@ bird_data$datetime <- as.POSIXct(bird_data$datetime, format="%Y-%m-%d %H:%M:%S",
 bird_data <- bird_data %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
   arrange(id, datetime)  # Ensure ordered by bird and time
+
+st_write(bird_data, "bird_data.geojson", delete_dsn = TRUE)
+
 
 # Create line geometries per bird
 bird_tracks <- bird_data %>%
@@ -49,4 +54,3 @@ tm_shape(bird_tracks) +
   tm_lines(col = "id", lwd = 2, col_alpha = 0.7, col.scale = tm_scale(values = "dark2_cyc")) +
   tm_legend(show = FALSE)
 ```
-

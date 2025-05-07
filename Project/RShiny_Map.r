@@ -1,118 +1,138 @@
-# Load required libraries
-#library(shiny)
-library(dplyr)
+library(shiny)
 library(sf)
-library(tidyr)
-library(leaflet)
-library(rlang)
+library(tmap)
+library(geojsonsf)
 
-# Beispiel für die Bird-Daten (vermutlich von einer CSV-Datei)
-bird_data <- read.csv("data/NuCra_Davos_all_data_2025-02-07_V2.csv")
-
-# Check and handle missing values
-bird_data <- bird_data %>% drop_na(longitude, latitude, datetime)
-
-# Convert datetime to proper format
-bird_data$datetime <- as.POSIXct(bird_data$datetime, format="%Y-%m-%d %H:%M:%S", tz="UTC")
-
-# Convert to sf object
-bird_data <- bird_data %>%
-  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
-  arrange(id, datetime)
-
-# Create line geometries per bird
-bird_tracks <- bird_data %>%
-  group_by(id) %>%
-  summarise(
-    geometry = st_cast(st_combine(geometry), "LINESTRING"),
-    hdop = mean(hdop, na.rm = TRUE),
-    altitude = mean(altitude, na.rm = TRUE),
-    satellites = mean(satellites, na.rm = TRUE),
-    tag_type = first(tag.type),
-    year = first(year),
-    month = first(month),
-    season = first(season),
-    brutzeit = first(brutzeit),
-    ring_no = first(ring_no),
-    bag = first(bag),
-    bird_and_bag = first(bird_and_bag),
-    weight = first(weight),
-    wing_length = first(wing_length),
-    bill_depth = first(bill_depth),
-    bill_length = first(bill_length),
-    tarsus_length = first(tarsus_length),
-    feathers = first(feathers),
-    stage_at_capture = first(stage.at.capture),
-    photo = first(photo),
-    datetime_at_capture = first(datetime.at.capture),
-    timediff = mean(timediff, na.rm = TRUE),
-    steplength = sum(steplength, na.rm = TRUE),
-    stepsize_from_last_hour = mean(stepsize.from.last.hour, na.rm = TRUE),
-    stage_current = first(stage.current),
-    id_stage = first(id.stage),
-    date = first(date),
-    ndays_new = first(ndays.new),
-    n_datapoints = first(n.datapoints),
-    dates_spanned_per_year = first(dates.spanned.per.year),
-    .groups = 'drop'
-  )
-
-# Define UI for the Shiny app
 ui <- fluidPage(
-  titlePanel("Liniendaten mit Leaflet in Shiny"),
-  
-  # Sidebar Layout with collapsible filter panel on top
-  sidebarLayout(
-    sidebarPanel(
-      # Collapsible filter panel
-      wellPanel(
-        collapsible = TRUE,  # Make the panel collapsible
-        collapsed = FALSE,   # Start the filter panel expanded
-        sliderInput("year_filter", "Select Year Range:",
-                    min = min(bird_tracks$year), 
-                    max = max(bird_tracks$year), 
-                    value = c(min(bird_tracks$year), max(bird_tracks$year)), 
-                    step = 1, animate = TRUE)
-      )
+  titlePanel("Bird Tracks Viewer"),
+  tabsetPanel(
+    tabPanel("Single Bird View",
+             sidebarLayout(
+               sidebarPanel(
+                 selectInput("bird_id", "Select Bird ID:", choices = NULL),
+                 HTML("<h3>Selected Bird Information:</h3>"),
+                 htmlOutput("bird_info")
+               ),
+               mainPanel(
+                 tmapOutput("map")
+               )
+             )
     ),
-    
-    # Main panel to display the map at the bottom
-    mainPanel(
-      leafletOutput("map", height = "500px")  # Set a fixed height for the map
+    tabPanel("Compare Birds",
+             sidebarLayout(
+               sidebarPanel(
+                 selectInput("bird_id_1", "Select Bird 1 ID:", choices = NULL),
+                 selectInput("bird_id_2", "Select Bird 2 ID:", choices = NULL)
+               ),
+               mainPanel(
+                 tmapOutput("compare_map")
+               )
+             )
     )
   )
 )
 
-
-# Define server logic for the Shiny app
 server <- function(input, output, session) {
+  showNotification("Loading data, please wait...", type = "message", duration = 10)
   
-  # Reactive expression to filter the data based on selected year range
-  filtered_data <- reactive({
-    # Filter bird_tracks based on the selected year range from the slider
-    bird_tracks %>%
-      filter(year >= input$year_filter[1] & year <= input$year_filter[2])
+  # Lade die GeoJSON-Daten
+  bird_tracks <- st_read("bird_tracks.geojson")
+  bird_data <- st_read("bird_data.geojson")
+  
+  # Aktualisiere die Auswahlmöglichkeiten basierend auf den einzigartigen IDs
+  updateSelectInput(session, "bird_id", choices = unique(bird_tracks$id))
+  updateSelectInput(session, "bird_id_1", choices = unique(bird_tracks$id))
+  updateSelectInput(session, "bird_id_2", choices = unique(bird_tracks$id))
+  
+  # Single Bird View - Map
+  output$map <- renderTmap({
+    req(input$bird_id)
+    selected_data <- bird_tracks[bird_tracks$id == input$bird_id, ]
+    selected_points <- bird_data[bird_data$id == input$bird_id, ]
+    
+    # Bounding Polygon berechnen
+    mbp <- if (nrow(selected_points) > 2) st_convex_hull(st_union(selected_points)) else NULL
+    
+    tmap_mode("view")
+    tm_basemap("OpenStreetMap") +
+      tm_shape(selected_data) +
+      tm_lines(lwd = 1.5, col = "black") +
+      tm_shape(selected_points) +
+      tm_symbols(shape = 3, col = "red", size = 0.2) +
+      if (!is.null(mbp)) {
+        tm_shape(mbp) +
+          tm_borders(col = "red", lwd = 2)
+      } +
+      tm_scale_bar(position = c("left", "bottom"), text.size = 1)
   })
   
-  # Create color palette for different bird ids
-  pal <- colorFactor(palette = "Set1", domain = bird_tracks$id)
-  
-  # Render the leaflet map based on filtered data
-  output$map <- renderLeaflet({
-    # Get filtered data
-    data <- filtered_data()
+  # Single Bird View - Bird Info
+  output$bird_info <- renderUI({
+    req(input$bird_id)
+    selected_points <- bird_data[bird_data$id == input$bird_id, ]
     
-    # Create a leaflet map with filtered data
-    leaflet(data) %>%
-      addProviderTiles(providers$OpenStreetMap) %>%
-      addPolylines(
-        color = ~pal(id),  # Color by bird id
-        weight = 2,  # Line width
-        opacity = 0.4
-      ) %>%
-      setView(lng = median(st_coordinates(data)[,1]), lat = median(st_coordinates(data)[,2]), zoom = 10)  # Set center and zoom level
+    if (nrow(selected_points) > 0) {
+      bird_info <- list(
+        paste("<strong>Bird ID:</strong> ", input$bird_id),
+        paste("<strong>Altitude Range (m):</strong> ", min(selected_points$altitude, na.rm = TRUE), " - ", max(selected_points$altitude, na.rm = TRUE)),
+        paste("<strong>Date Range:</strong> ", format(min(selected_points$datetime, na.rm = TRUE), "%Y-%m-%d"), " - ", format(max(selected_points$datetime, na.rm = TRUE), "%Y-%m-%d")),
+        paste("<strong>Weight (g):</strong> ", unique(selected_points$weight)),
+        paste("<strong>Wing Length (cm):</strong> ", unique(selected_points$wing_length)),
+        paste("<strong>Bill Depth (cm):</strong> ", unique(selected_points$bill_depth)),
+        paste("<strong>Bill Length (cm):</strong> ", unique(selected_points$bill_length)),
+        paste("<strong>Tarsus Length (cm):</strong> ", unique(selected_points$tarsus_length)),
+        paste("<strong>Stage at Capture:</strong> ", unique(selected_points$stage.at.capture))
+      )
+      HTML(paste(bird_info, collapse = "<br>"))
+    } else {
+      HTML("<em>No data available for the selected bird.</em>")
+    }
+  })
+  
+  # Compare Birds - Map
+  output$compare_map <- renderTmap({
+    req(input$bird_id_1, input$bird_id_2)
+    
+    bird1_data <- bird_tracks[bird_tracks$id == input$bird_id_1, ]
+    bird2_data <- bird_tracks[bird_tracks$id == input$bird_id_2, ]
+    
+    bird1_points <- bird_data[bird_data$id == input$bird_id_1, ]
+    bird2_points <- bird_data[bird_data$id == input$bird_id_2, ]
+    
+    # Bounding Polygons berechnen
+    mbp1 <- if (nrow(bird1_points) > 2) st_convex_hull(st_union(bird1_points)) else NULL
+    mbp2 <- if (nrow(bird2_points) > 2) st_convex_hull(st_union(bird2_points)) else NULL
+    
+    # Überschneidung berechnen
+    intersection <- if (!is.null(mbp1) && !is.null(mbp2)) {
+      st_intersection(mbp1, mbp2)
+    } else {
+      NULL
+    }
+    
+    has_intersection <- !is.null(intersection) && length(intersection) > 0 && !st_is_empty(intersection)
+    
+    tmap_mode("view")
+    tm_basemap("OpenStreetMap") +
+      tm_shape(bird1_data) +
+      tm_lines(lwd = 1.5, col = "red") +
+      tm_shape(bird2_data) +
+      tm_lines(lwd = 1.5, col = "blue") +
+      if (!is.null(mbp1)) {
+        tm_shape(mbp1) +
+          tm_borders(col = "red", lwd = 2, lty = "dashed")
+      } +
+      if (!is.null(mbp2)) {
+        tm_shape(mbp2) +
+          tm_borders(col = "blue", lwd = 2, lty = "dashed")
+      } +
+      if (has_intersection) {
+        tm_shape(intersection) +
+          tm_fill(col = "green", alpha = 0.4) +
+          tm_borders(col = "green", lwd = 2)
+      } +
+      tm_scale_bar(position = c("left", "bottom"), text.size = 1)
   })
 }
 
-# Run the application
 shinyApp(ui = ui, server = server)

@@ -17,7 +17,7 @@ library(tidyverse)
 
 ```{r}
 #Import Data
-Nutcracker <- read_csv("Nutcracker_Tracks.csv")
+Nutcracker <- read_csv("Project/data/NuCra_Davos_all_data_2025-02-07_V2.csv")
 
 #change to sf-object
 tracks <- st_as_sf(Nutcracker,
@@ -44,7 +44,7 @@ tracks_2056 <- tracks_2056 |>
 tracks_2056_df <- st_drop_geometry(tracks_2056)
 
 # Speichern als CSV
-write.csv(tracks_2056_df, "tracks_2056_export.csv", row.names = FALSE)
+write.csv(tracks_2056_df, "Project/Data/tracks_2056_export.csv", row.names = FALSE)
 
 str(tracks_2056_df)
 ```
@@ -86,8 +86,6 @@ tm_shape(spring_movements) +
 ```
 
 ```{r}
-
-
 # 1. Stelle sicher: x und y als numeric
 spring_movements <- spring_movements |>
   mutate(x = as.numeric(st_coordinates(geometry)[,1]),
@@ -107,7 +105,7 @@ clustered_data <- spring_movements |>
     coords <- .x |> select(x, y) |> mutate_all(as.numeric) |> as.matrix()
 
     # Noch einmal Sicherheit:
-    stopifnot(is.numeric(coords[,1]), is.numeric(coords[,2]))
+    #stopifnot(is.numeric(coords[,1]), is.numeric(coords[,2]))
 
     cl <- dbscan(coords, eps = eps_dist, minPts = 3)
     .x$cluster_id <- cl$cluster

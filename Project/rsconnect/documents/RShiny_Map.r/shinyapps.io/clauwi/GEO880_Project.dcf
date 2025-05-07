@@ -5,9 +5,9 @@ account: clauwi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14393584
-bundleId: 10050823
+bundleId: 10245775
 url: https://clauwi.shinyapps.io/GEO880_Project/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: bibliography.bib|bird_tracks.geojson|data/Tannenhäher.jpg|index.qmd|Proposal Group 6.pdf|Readme.md|testing.qmd
+ignoredFiles: bibliography.bib|data/NuCra_Davos_all_data_2025-02-07_V2.csv|data/Tannenhäher.jpg|data/tracks_2056_export.csv|index.qmd|Proposal Group 6.pdf|Readme.md|testing.qmd
