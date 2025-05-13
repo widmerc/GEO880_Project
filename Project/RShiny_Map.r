@@ -1,6 +1,6 @@
 library(shiny)
 library(sf)
-library(tmap)
+library(leaflet)
 library(geojsonsf)
 
 ui <- fluidPage(
@@ -14,18 +14,18 @@ ui <- fluidPage(
                  htmlOutput("bird_info")
                ),
                mainPanel(
-                 tmapOutput("map")
+                 leafletOutput("map")
                )
              )
     ),
     tabPanel("Compare Birds",
              sidebarLayout(
                sidebarPanel(
-                 selectInput("bird_id_1", "Select Bird 1 ID:", choices = NULL),
-                 selectInput("bird_id_2", "Select Bird 2 ID:", choices = NULL)
+                 selectInput("bird_id_1", "Select Bird 1 ID:", choices = NULL, selected = ".458"),
+                 selectInput("bird_id_2", "Select Bird 2 ID:", choices = NULL, selected = "7314")
                ),
                mainPanel(
-                 tmapOutput("compare_map")
+                 leafletOutput("compare_map")
                )
              )
     )
@@ -35,67 +35,73 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   showNotification("Loading data, please wait...", type = "message", duration = 10)
   
-  # Lade die GeoJSON-Daten
   bird_tracks <- st_read("bird_tracks.geojson")
   bird_data <- st_read("bird_data.geojson")
+
+  bird_ids <- unique(bird_tracks$id)
   
-  # Aktualisiere die Auswahlmöglichkeiten basierend auf den einzigartigen IDs
-  updateSelectInput(session, "bird_id", choices = unique(bird_tracks$id))
-  updateSelectInput(session, "bird_id_1", choices = unique(bird_tracks$id))
-  updateSelectInput(session, "bird_id_2", choices = unique(bird_tracks$id))
+  updateSelectInput(session, "bird_id", choices = bird_ids)
+  updateSelectInput(session, "bird_id_1", choices = bird_ids)
+  updateSelectInput(session, "bird_id_2", choices = bird_ids)
+
+  observeEvent(input$bird_id_2, {
+    # Nur bird_id_1 aktualisieren, wenn sich bird_id_2 ändert
+    if (!is.null(input$bird_id_2)) {
+      updateSelectInput(session, "bird_id_1", choices = setdiff(bird_ids, input$bird_id_2))
+    }
+  }, ignoreInit = TRUE)
   
-  # Single Bird View - Map
-  output$map <- renderTmap({
-    req(input$bird_id)
-    selected_data <- bird_tracks[bird_tracks$id == input$bird_id, ]
-    selected_points <- bird_data[bird_data$id == input$bird_id, ]
-    
-    # Bounding Polygon berechnen
-    mbp <- if (nrow(selected_points) > 2) st_convex_hull(st_union(selected_points)) else NULL
-    
-    tmap_mode("view")
-    tm_basemap("OpenStreetMap") +
-      tm_shape(selected_data) +
-      tm_lines(lwd = 1.5, col = "black") +
-      tm_shape(selected_points) +
-      tm_symbols(shape = 3, col = "red", size = 0.2) +
-      if (!is.null(mbp)) {
-        tm_shape(mbp) +
-          tm_borders(col = "red", lwd = 2)
-      } +
-      tm_scale_bar(position = c("left", "bottom"), text.size = 1)
-  })
-  
-  # Single Bird View - Bird Info
   output$bird_info <- renderUI({
     req(input$bird_id)
     selected_points <- bird_data[bird_data$id == input$bird_id, ]
-    
+
     if (nrow(selected_points) > 0) {
       bird_info <- list(
         paste("<strong>Bird ID:</strong> ", input$bird_id),
-        paste("<strong>Altitude Range (m):</strong> ", min(selected_points$altitude, na.rm = TRUE), " - ", max(selected_points$altitude, na.rm = TRUE)),
+        paste("<strong>Number of Points:</strong> ", nrow(selected_points)),
         paste("<strong>Date Range:</strong> ", format(min(selected_points$datetime, na.rm = TRUE), "%Y-%m-%d"), " - ", format(max(selected_points$datetime, na.rm = TRUE), "%Y-%m-%d")),
+        paste("<strong>Median Time Diff:</strong> ", median(selected_points$timediff, na.rm = TRUE)),
+        paste("<strong>Altitude Range (m):</strong> ", min(selected_points$altitude, na.rm = TRUE), " - ", max(selected_points$altitude, na.rm = TRUE)),
+        paste("<strong>Median Step Length:</strong> ", median(selected_points$steplength, na.rm = TRUE)),
         paste("<strong>Weight (g):</strong> ", unique(selected_points$weight)),
         paste("<strong>Wing Length (cm):</strong> ", unique(selected_points$wing_length)),
         paste("<strong>Bill Depth (cm):</strong> ", unique(selected_points$bill_depth)),
         paste("<strong>Bill Length (cm):</strong> ", unique(selected_points$bill_length)),
         paste("<strong>Tarsus Length (cm):</strong> ", unique(selected_points$tarsus_length)),
         paste("<strong>Stage at Capture:</strong> ", unique(selected_points$stage.at.capture))
+        
       )
       HTML(paste(bird_info, collapse = "<br>"))
     } else {
       HTML("<em>No data available for the selected bird.</em>")
     }
   })
-  
-  # Compare Birds - Map
-  output$compare_map <- renderTmap({
+
+  output$map <- renderLeaflet({
+    req(input$bird_id)
+    selected_data <- bird_tracks[bird_tracks$id == input$bird_id, ]
+    selected_points <- bird_data[bird_data$id == input$bird_id, ]
+    mbp <- if (nrow(selected_points) > 2) st_convex_hull(st_union(selected_points)) else NULL
+
+    leaflet_map <- leaflet() %>%
+      addTiles(group = "Base Map") %>%
+      addPolygons(data = mbp, color = "#FF5733", weight = 2, fillOpacity = 0.1, group = "Bounding Polygon") %>%
+      addPolylines(data = selected_data, color = "#1E90FF", weight = 2, group = "Track") %>%
+      addCircleMarkers(data = selected_points, color = "#FF5733", radius = 1, group = "Points")
+    leaflet_map %>%
+      addLayersControl(
+        overlayGroups = c("Points", "Track", "Polygon"),
+        options = layersControlOptions(collapsed = TRUE)
+      ) %>%
+      addLegend(position = "bottomright", colors = c("#FF5733", "#1E90FF","#FF5733"), labels = c("Points", "Track","Bounding Polygon"), title = "Legend") %>%
+      addScaleBar(position = "bottomleft")
+  })
+
+  output$compare_map <- renderLeaflet({
     req(input$bird_id_1, input$bird_id_2)
-    
+
     bird1_data <- bird_tracks[bird_tracks$id == input$bird_id_1, ]
     bird2_data <- bird_tracks[bird_tracks$id == input$bird_id_2, ]
-    
     bird1_points <- bird_data[bird_data$id == input$bird_id_1, ]
     bird2_points <- bird_data[bird_data$id == input$bird_id_2, ]
     
@@ -112,26 +118,31 @@ server <- function(input, output, session) {
     
     has_intersection <- !is.null(intersection) && length(intersection) > 0 && !st_is_empty(intersection)
     
-    tmap_mode("view")
-    tm_basemap("OpenStreetMap") +
-      tm_shape(bird1_data) +
-      tm_lines(lwd = 1.5, col = "red") +
-      tm_shape(bird2_data) +
-      tm_lines(lwd = 1.5, col = "blue") +
-      if (!is.null(mbp1)) {
-        tm_shape(mbp1) +
-          tm_borders(col = "red", lwd = 2, lty = "dashed")
-      } +
-      if (!is.null(mbp2)) {
-        tm_shape(mbp2) +
-          tm_borders(col = "blue", lwd = 2, lty = "dashed")
-      } +
-      if (has_intersection) {
-        tm_shape(intersection) +
-          tm_fill(col = "green", alpha = 0.4) +
-          tm_borders(col = "green", lwd = 2)
-      } +
-      tm_scale_bar(position = c("left", "bottom"), text.size = 1)
+    leaflet_map <- leaflet() %>%
+      addTiles(group = "Base Map") %>%
+      addPolygons(data = mbp1, color = "#FF5733", weight = 2, fillOpacity = 0.1, group = "Bird 1 Polygon") %>%
+      addPolygons(data = mbp2, color = "#1E90FF", weight = 2, fillOpacity = 0.1, group = "Bird 2 Polygon") %>%
+      addPolylines(data = bird1_data, color = "#FF5733", weight = 1, group = "Bird 1 Track") %>%
+      addPolylines(data = bird2_data, color = "#1E90FF", weight = 1, group = "Bird 2 Track")
+    
+    if (has_intersection) {
+      leaflet_map <- leaflet_map %>%
+        addPolygons(data = intersection, color = "#32CD32", weight = 2, fillOpacity = 0.5, group = "Intersection")
+    } else {
+      leaflet_map <- leaflet_map %>%
+        addControl(
+          html = paste("<strong style='color:red;'>No intersection between", input$bird_id_1, "and", input$bird_id_2, "</strong>"),
+          position = "topleft"
+        )
+    }
+    
+    leaflet_map %>%
+      addLayersControl(
+        overlayGroups = c("Bird 1 Track", "Bird 2 Track", "Bird 1 Polygon", "Bird 2 Polygon", "Intersection"),
+        options = layersControlOptions(collapsed = TRUE)
+      ) %>%
+      addLegend(position = "bottomright", colors = c("#FF5733", "#1E90FF", "#32CD32"), labels = c("Bird 1", "Bird 2", "Intersection"), title = "Legend") %>%
+      addScaleBar(position = "bottomleft")
   })
 }
 
