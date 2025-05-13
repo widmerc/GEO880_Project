@@ -1,0 +1,154 @@
+---
+title: "Preprocessing RShiny"
+author: "Group6"
+format: html
+editor: visual
+---
+
+# Preprocessing
+
+```{r}
+library(dplyr)
+library(sf)
+library(tmap)
+library(tidyr)
+library(dbscan)
+
+
+bird_data <- read.csv("data/NuCra_Davos_all_data_2025-02-07_V2.csv")
+dir.create("preprocessing_export", showWarnings = FALSE)
+
+# Check and handle missing values if any
+bird_data <- bird_data %>% drop_na(longitude, latitude, datetime)
+remove_ids <- c(48325, 15381, 15382, 15383, 45363, 7949)
+bird_data <- bird_data %>% filter(!X %in% remove_ids)
+
+# Convert datetime to proper format
+bird_data$datetime <- as.POSIXct(bird_data$datetime, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+
+# Convert to sf object
+bird_data <- bird_data %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
+  arrange(id, datetime)  # Ensure ordered by bird and time
+
+# Create line geometries per bird
+bird_tracks <- bird_data %>%
+  group_by(id) %>%
+  summarise(geometry = st_cast(st_combine(geometry), "LINESTRING"), .groups = 'drop')
+
+# Count number of unique bird groups
+num_groups <- n_distinct(bird_tracks$id)
+print(paste("Number of unique bird groups:", num_groups))
+
+# Save processed data
+st_write(bird_tracks, "preprocessing_export/bird_tracks.geojson", delete_dsn = TRUE)
+```
+
+
+# Preprocess Cluster Analysis (DBScan)
+```{r}
+# Preprocess Cluster Analysis (DBScan)
+
+# Apply DBScan per bird ID
+bird_data$cluster <- NA  # Initialize cluster column
+unique_ids <- unique(bird_data$id)
+minPts <- 15
+
+for (bird_id in unique_ids) {
+  bird_subset <- bird_data[bird_data$id == bird_id, ]
+  coords <- st_coordinates(bird_subset)
+  num_points <- nrow(coords)
+  
+  # Check if sufficient points are available
+  if (num_points >= minPts) {
+    knn_distances <- dbscan::kNNdist(coords, k = minPts/2)
+    eps <- mean(knn_distances, na.rm = TRUE)
+    db <- dbscan(coords, eps = eps, minPts = minPts)
+    bird_data$cluster[bird_data$id == bird_id] <- as.factor(db$cluster)
+  } else {
+    message(paste("Not enough points for ID", bird_id, "- Only", num_points, "points available."))
+  }
+}
+
+# Save as geojson
+st_write(bird_data, "preprocessing_export/bird_data.geojson", delete_dsn = TRUE)
+```
+
+
+# Visualize
+```{r}
+# Visualize Clusters for Specific ID
+target_id <- '.458'
+print(target_id)
+bird_data_filtered <- bird_data[bird_data$id == target_id, ]
+
+if (nrow(bird_data_filtered) > 0) {
+  tmap_mode("view")
+  tm_shape(bird_data_filtered) +
+    tm_dots(col = "cluster", palette = "Set1", title = "Cluster ID") +
+    tm_layout(title = paste("Clusters for ID", target_id))
+} else {
+  print("No data available for the specified ID")
+}
+
+```
+
+
+# Prepare Data for Export of DB-Clusters
+
+```{r}
+convex_hulls_polygons <- st_sfc()
+convex_hulls_ids <- c()
+
+for (id_name in unique(bird_data$id)) {
+  convex_hulls <- list()
+  selected_data <- bird_data[bird_data$id == id_name, ]
+  clusters <- unique(na.omit(selected_data$cluster))
+  
+  if (length(clusters) == 0) {
+    next
+  }
+
+  # Loop through each cluster
+  for (i in clusters) {
+    # Filter data by cluster
+    cluster_data <- selected_data[selected_data$cluster == i, ]
+    # Calculate convex hull only if there are more than 3 points
+    if (nrow(cluster_data) > 3) {
+      hull <- st_convex_hull(st_union(cluster_data))
+      convex_hulls[[paste(id_name, i, sep = "_")]] <- hull
+    }
+  }
+
+  if (length(convex_hulls) > 0) {
+    sf_object_convex_hull_geom <- st_sfc(unlist(convex_hulls, recursive = FALSE))
+    # Remove the largest polygon
+    if (length(sf_object_convex_hull_geom) > 1) {
+      sf_object_convex_hull_geom <- sf_object_convex_hull_geom[-which.max(st_area(sf_object_convex_hull_geom))]
+    }
+
+    convex_hulls_polygons <- c(convex_hulls_polygons, sf_object_convex_hull_geom)
+    convex_hulls_ids <- c(convex_hulls_ids, rep(id_name, length(sf_object_convex_hull_geom)))
+  }
+}
+
+convex_hulls_polygons <- st_set_crs(convex_hulls_polygons, 4326)
+convex_hulls_sf <- st_as_sf(data.frame(id = convex_hulls_ids, geometry = convex_hulls_polygons))
+
+
+st_write(bird_data, "preprocessing_export/DB_Scan_polygons.geojson", delete_dsn = TRUE)
+```
+
+
+```{r}
+print(length(convex_hulls_polygons))
+
+require(leaflet)
+ leaflet_map <- leaflet() %>%
+      addTiles(group = "Base Map") %>%
+      addPolygons(data = convex_hulls_polygons, color = "#FF5733", weight = 2, fillOpacity = 0.1, group = "Bounding Polygon")
+```
+
+
+
+

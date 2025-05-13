@@ -5,7 +5,7 @@ account: clauwi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14393584
-bundleId: 10245775
+bundleId: 10274740
 url: https://clauwi.shinyapps.io/GEO880_Project/
 version: 1
 asMultiple: FALSE
