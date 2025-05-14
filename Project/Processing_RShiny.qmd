@@ -1,13 +1,17 @@
 ---
 title: "Preprocessing RShiny"
-author: "Group6"
+author: "Group6 - Claude Widmer"
 format: html
 editor: visual
 ---
 
-# Preprocessing
+# Preprocessing For RShiny App
+
+Before integrating the data into the RShiny application, we perform preprocessing after the initial exploratory data analysis (EDA). To enhance performance, all necessary calculations and data transformations are conducted at this stage. The processed data is then exported as .geojson or .csv files, ready for seamless import into the RShiny app.
 
 ```{r}
+#| message: false
+#| warning: false
 library(dplyr)
 library(sf)
 library(tmap)
@@ -44,11 +48,12 @@ print(paste("Number of unique bird groups:", num_groups))
 st_write(bird_tracks, "preprocessing_export/bird_tracks.geojson", delete_dsn = TRUE)
 ```
 
-
 # Preprocess Cluster Analysis (DBScan)
+
+For each bird, we apply DBScan clustering with a minimum points (minPts) parameter set to 15. The eps parameter is dynamically calculated as the mean of the k-nearest neighbor (kNN) distances, ensuring adaptive and data-driven clustering.
+
+
 ```{r}
-# Preprocess Cluster Analysis (DBScan)
-
 # Apply DBScan per bird ID
 bird_data$cluster <- NA  # Initialize cluster column
 unique_ids <- unique(bird_data$id)
@@ -74,8 +79,10 @@ for (bird_id in unique_ids) {
 st_write(bird_data, "preprocessing_export/bird_data.geojson", delete_dsn = TRUE)
 ```
 
-
 # Visualize
+
+To verify the effectiveness of the preprocessing and clustering, we create visualizations that illustrate the clustering results. This step ensures that the DBScan algorithm has accurately identified clusters based on the calculated eps values.
+
 ```{r}
 # Visualize Clusters for Specific ID
 target_id <- '.458'
@@ -93,8 +100,11 @@ if (nrow(bird_data_filtered) > 0) {
 
 ```
 
-
 # Prepare Data for Export of DB-Clusters
+
+## DBScan Algorithm
+
+In this step, we structure the data for export to .geojson files. Each bird's DBScan clusters are saved as individual .geojson files, with each file containing the cluster polygons for that specific bird, facilitating organized data handling and subsequent analysis.
 
 ```{r}
 convex_hulls_polygons <- st_sfc()
@@ -136,17 +146,69 @@ convex_hulls_polygons <- st_set_crs(convex_hulls_polygons, 4326)
 convex_hulls_sf <- st_as_sf(data.frame(id = convex_hulls_ids, geometry = convex_hulls_polygons))
 
 
-st_write(bird_data, "preprocessing_export/DB_Scan_polygons.geojson", delete_dsn = TRUE)
+st_write(convex_hulls_sf, "preprocessing_export/DB_Scan_polygons.geojson", delete_dsn = TRUE)
 ```
+## Calculate Overlap Matrix
 
+The overlap matrix is calculated to identify intersecting DBScan clusters between birds. The function calculate_overlap_matrix() uses vectorized operations to efficiently compute the intersections and generate a symmetric matrix, indicating overlap presence with binary values. The resulting matrix is exported as a .csv file for further analysis.
 
 ```{r}
-print(length(convex_hulls_polygons))
+#| warning: false
 
-require(leaflet)
- leaflet_map <- leaflet() %>%
-      addTiles(group = "Base Map") %>%
-      addPolygons(data = convex_hulls_polygons, color = "#FF5733", weight = 2, fillOpacity = 0.1, group = "Bounding Polygon")
+# Funktion zur Berechnung der Overlap-Matrix
+# Funktion zur effizienten Berechnung der Overlap-Matrix
+calculate_overlap_matrix <- function(DB_Scan_data) {
+  # Extrahiere eindeutige Vogel-IDs
+  bird_ids <- unique(DB_Scan_data$id)
+  n <- length(bird_ids)
+  
+  # Erstelle eine leere Overlap-Matrix
+  overlap_matrix <- matrix(0, nrow = n, ncol = n, dimnames = list(bird_ids, bird_ids))
+  
+  # Nutze Vektorisierung zur Berechnung der Overlaps
+  for (i in 1:(n - 1)) {
+    bird1_data <- DB_Scan_data[DB_Scan_data$id == bird_ids[i], ]
+
+    for (j in (i + 1):n) {
+      bird2_data <- DB_Scan_data[DB_Scan_data$id == bird_ids[j], ]
+
+      # Berechne die Intersection
+      intersection <- st_intersection(bird1_data, bird2_data)
+
+      # Überprüfe, ob eine Intersection vorhanden ist
+      overlap_matrix[i, j] <- ifelse(nrow(intersection) > 0, 1, 0)
+      overlap_matrix[j, i] <- overlap_matrix[i, j]
+    }
+  }
+  return(overlap_matrix)
+}
+
+# Beispielaufruf
+overlap_matrix <- calculate_overlap_matrix(convex_hulls_sf)
+write.csv(overlap_matrix, 'preprocessing_export/DB_Scan_Matrix.csv')
+
+```
+
+## Function to find relatable birds
+
+The find_related_birds() function identifies birds with overlapping DBScan clusters based on the overlap matrix. By inputting a specific bird ID, the function extracts all bird IDs with intersecting clusters (indicated by a value of 1 in the matrix). This provides a quick way to find potential interactions or shared areas among birds.
+
+```{r}
+find_related_birds <- function(matrix_data, bird_id) {
+  if (!(bird_id %in% rownames(matrix_data))) {
+    stop("Die angegebene Vogel-ID existiert nicht in der Matrix.")
+  }
+
+  # Finde die Zeile, die der bird_id entspricht
+  bird_row <- matrix_data[as.character(bird_id), ]
+
+  # Extrahiere die IDs der ähnlichen Vögel (Spalten mit Wert 1)
+  similar_birds <- colnames(matrix_data)[which(bird_row == 1)]
+
+  return(similar_birds)
+}
+
+find_related_birds(overlap_matrix, "7934")
 ```
 
 
