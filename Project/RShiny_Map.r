@@ -8,6 +8,7 @@ library(shinythemes)
 
 ui <- fluidPage(
   theme = shinytheme("yeti"),
+  titlePanel("Bird Tracking Dashboard"),
   tabsetPanel(
     tabPanel("Single Bird View",
              sidebarLayout(
