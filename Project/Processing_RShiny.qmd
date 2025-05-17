@@ -33,11 +33,20 @@ bird_data$datetime <- as.POSIXct(bird_data$datetime, format="%Y-%m-%d %H:%M:%S",
 # Convert to sf object
 bird_data <- bird_data %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
-  arrange(id, datetime)  # Ensure ordered by bird and time
+  arrange(id, datetime) %>%
+  mutate(season = case_when(
+    month >= 2 & month <= 6 ~ "Breeding Time",
+    month >= 7 & month <= 10 ~ "Harvesting Time",
+    month %in% c(11, 12, 1) ~ "Winter",
+    TRUE ~ NA_character_
+  ))
+
+# Define Seasons
+bird_data <- bird_data 
 
 # Create line geometries per bird
 bird_tracks <- bird_data %>%
-  group_by(id) %>%
+  group_by(id, month) %>%
   summarise(geometry = st_cast(st_combine(geometry), "LINESTRING"), .groups = 'drop')
 
 # Count number of unique bird groups
@@ -52,30 +61,46 @@ st_write(bird_tracks, "preprocessing_export/bird_tracks.geojson", delete_dsn = T
 
 For each bird, we apply DBScan clustering with a minimum points (minPts) parameter set to 15. The eps parameter is dynamically calculated as the mean of the k-nearest neighbor (kNN) distances, ensuring adaptive and data-driven clustering.
 
-
 ```{r}
-# Apply DBScan per bird ID
-bird_data$cluster <- NA  # Initialize cluster column
-unique_ids <- unique(bird_data$id)
+# Initialize cluster columns
+bird_data$cluster_season <- NA
+bird_data$cluster_all <- NA
+
+# Set parameters
 minPts <- 15
+unique_ids <- unique(bird_data$id)
 
 for (bird_id in unique_ids) {
-  bird_subset <- bird_data[bird_data$id == bird_id, ]
-  coords <- st_coordinates(bird_subset)
-  num_points <- nrow(coords)
   
-  # Check if sufficient points are available
-  if (num_points >= minPts) {
-    knn_distances <- dbscan::kNNdist(coords, k = minPts/2)
-    eps <- mean(knn_distances, na.rm = TRUE)
-    db <- dbscan(coords, eps = eps, minPts = minPts)
-    bird_data$cluster[bird_data$id == bird_id] <- as.factor(db$cluster)
-  } else {
-    message(paste("Not enough points for ID", bird_id, "- Only", num_points, "points available."))
+  # --- DBScan for All Seasons ---
+  bird_all_data <- bird_data %>% filter(id == bird_id)
+  coords_all <- st_coordinates(bird_all_data)
+  
+  if (nrow(coords_all) >= minPts) {
+    knn_distances_all <- dbscan::kNNdist(coords_all, k = minPts / 2)
+    eps_all <- mean(knn_distances_all, na.rm = TRUE)
+    db_all <- dbscan(coords_all, eps = eps_all, minPts = minPts)
+    
+    bird_data$cluster_all[bird_data$id == bird_id] <- as.factor(db_all$cluster)
+  }
+  
+  # --- DBScan by Season ---
+  for (season_name in c("Breeding Time", "Harvesting Time", "Winter")) {
+    
+    bird_season_data <- bird_data %>% filter(id == bird_id, season == season_name)
+    coords_season <- st_coordinates(bird_season_data)
+    
+    if (nrow(coords_season) >= minPts) {
+      knn_distances_season <- dbscan::kNNdist(coords_season, k = minPts / 2)
+      eps_season <- mean(knn_distances_season, na.rm = TRUE)
+      db_season <- dbscan(coords_season, eps = eps_season, minPts = minPts)
+      
+      bird_data$cluster_season[bird_data$id == bird_id & bird_data$season == season_name] <- as.factor(db_season$cluster)
+    }
   }
 }
 
-# Save as geojson
+# Save the processed data with new cluster columns
 st_write(bird_data, "preprocessing_export/bird_data.geojson", delete_dsn = TRUE)
 ```
 
@@ -92,7 +117,7 @@ bird_data_filtered <- bird_data[bird_data$id == target_id, ]
 if (nrow(bird_data_filtered) > 0) {
   tmap_mode("view")
   tm_shape(bird_data_filtered) +
-    tm_dots(col = "cluster", palette = "Set1", title = "Cluster ID") +
+    tm_dots(col = "cluster_all", palette = "Set1", title = "Cluster ID") +
     tm_layout(title = paste("Clusters for ID", target_id))
 } else {
   print("No data available for the specified ID")
@@ -107,48 +132,90 @@ if (nrow(bird_data_filtered) > 0) {
 In this step, we structure the data for export to .geojson files. Each bird's DBScan clusters are saved as individual .geojson files, with each file containing the cluster polygons for that specific bird, facilitating organized data handling and subsequent analysis.
 
 ```{r}
-convex_hulls_polygons <- st_sfc()
+library(dplyr)
+library(sf)
+
+# Load Data
+bird_data <- st_read("preprocessing_export/bird_data.geojson")
+
+# Check and set CRS to WGS84 (EPSG:4326)
+target_crs <- 4326
+if (st_crs(bird_data)$epsg != target_crs) {
+  bird_data <- st_transform(bird_data, crs = target_crs)
+}
+
+# Initialize lists for storing polygons and attributes
+convex_hulls_polygons <- st_sfc(crs = target_crs)
 convex_hulls_ids <- c()
+convex_hulls_clusters <- c()
+convex_hulls_seasons <- c()
 
+# Iterate through each bird
 for (id_name in unique(bird_data$id)) {
-  convex_hulls <- list()
-  selected_data <- bird_data[bird_data$id == id_name, ]
-  clusters <- unique(na.omit(selected_data$cluster))
   
-  if (length(clusters) == 0) {
-    next
-  }
-
-  # Loop through each cluster
-  for (i in clusters) {
-    # Filter data by cluster
-    cluster_data <- selected_data[selected_data$cluster == i, ]
-    # Calculate convex hull only if there are more than 3 points
-    if (nrow(cluster_data) > 3) {
-      hull <- st_convex_hull(st_union(cluster_data))
-      convex_hulls[[paste(id_name, i, sep = "_")]] <- hull
+  # Iterate through each season and "All Seasons"
+  for (season_name in c("Breeding Time", "Harvesting Time", "Winter", "All Seasons")) {
+    
+    if (season_name == "All Seasons") {
+      selected_data <- bird_data[bird_data$id == id_name, ]
+      cluster_column <- "cluster_all"
+    } else {
+      selected_data <- bird_data[bird_data$id == id_name & bird_data$season == season_name, ]
+      cluster_column <- "cluster_season"
     }
-  }
-
-  if (length(convex_hulls) > 0) {
-    sf_object_convex_hull_geom <- st_sfc(unlist(convex_hulls, recursive = FALSE))
-    # Remove the largest polygon
-    if (length(sf_object_convex_hull_geom) > 1) {
-      sf_object_convex_hull_geom <- sf_object_convex_hull_geom[-which.max(st_area(sf_object_convex_hull_geom))]
+    
+    # Ensure CRS is consistent
+    if (st_crs(selected_data)$epsg != target_crs) {
+      selected_data <- st_transform(selected_data, crs = target_crs)
     }
-
-    convex_hulls_polygons <- c(convex_hulls_polygons, sf_object_convex_hull_geom)
-    convex_hulls_ids <- c(convex_hulls_ids, rep(id_name, length(sf_object_convex_hull_geom)))
+    
+    # Get unique clusters
+    clusters <- unique(na.omit(selected_data[[cluster_column]]))
+    
+    # Skip if no clusters found
+    if (length(clusters) == 0) next
+    
+    # Identify the smallest cluster ID and exclude it
+    min_cluster <- min(clusters)
+    clusters <- clusters[clusters != min_cluster]
+    
+    
+    # Process each cluster
+    for (cluster_id in clusters) {
+      # Filter by cluster
+      cluster_data <- selected_data[selected_data[[cluster_column]] == cluster_id, ]
+      
+      # Ensure sufficient points for convex hull
+      if (nrow(cluster_data) > 3) {
+        hull <- st_convex_hull(st_union(cluster_data))
+        
+        # Store data
+        convex_hulls_polygons <- c(convex_hulls_polygons, hull)
+        convex_hulls_ids <- c(convex_hulls_ids, id_name)
+        convex_hulls_clusters <- c(convex_hulls_clusters, cluster_id)
+        convex_hulls_seasons <- c(convex_hulls_seasons, season_name)
+      }
+    }
   }
 }
 
-convex_hulls_polygons <- st_set_crs(convex_hulls_polygons, 4326)
-convex_hulls_sf <- st_as_sf(data.frame(id = convex_hulls_ids, geometry = convex_hulls_polygons))
+# Create sf object with 3 columns: id, cluster_id, season
+convex_hulls_sf <- st_as_sf(
+  data.frame(
+    id = convex_hulls_ids,
+    cluster_id = convex_hulls_clusters,
+    season = convex_hulls_seasons,
+    geometry = convex_hulls_polygons
+  ),
+  crs = target_crs
+)
 
-
+# Save as GeoJSON
 st_write(convex_hulls_sf, "preprocessing_export/DB_Scan_polygons.geojson", delete_dsn = TRUE)
+
 ```
-## Calculate Overlap Matrix
+
+## Calculate Overlap Matrix (outdated)
 
 The overlap matrix is calculated to identify intersecting DBScan clusters between birds. The function calculate_overlap_matrix() uses vectorized operations to efficiently compute the intersections and generate a symmetric matrix, indicating overlap presence with binary values. The resulting matrix is exported as a .csv file for further analysis.
 
@@ -210,7 +277,3 @@ find_related_birds <- function(matrix_data, bird_id) {
 
 find_related_birds(overlap_matrix, "7934")
 ```
-
-
-
-
