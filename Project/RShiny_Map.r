@@ -10,11 +10,11 @@ library(tidyr)
 
 
 
+
 ui <- fluidPage(
   theme = shinytheme("yeti"),
   titlePanel("Bird Tracking Dashboard"),
   
-  # Hilfebutton oben rechts hinzugefügt
   tags$div(
     style = "position: absolute; top: 10px; right: 10px;",
     actionButton("help_button", "?", style = "font-size: 26px; width: 50px; height: 50px; border-radius: 10%; font-weight: bold;")
@@ -78,78 +78,76 @@ ui <- fluidPage(
     ),
     
     # Multiple Bird Comparison Tab
-    tabPanel("Multiple Bird Comparison",
-             sidebarLayout(
-               sidebarPanel(
-                 width = 6,
-                 # Bird 1 ID Selector with Buttons
-                 selectInput("bird_id_1", "Select Bird 1 ID:", choices = NULL),
-                 fluidRow(
-                   column(6, actionButton("prev_bird_1", "Previous", style = "width: 100%;")),
-                   column(6, actionButton("next_bird_1", "Next", style = "width: 100%;"))
-                 ),
-                 hr(),
-                 
-                 # Bird 2 ID Selector with Buttons
-                 selectInput("bird_id_2", "Select Bird 2 ID:", choices = NULL),
-                 fluidRow(
-                   column(6, actionButton("prev_bird_2", "Previous", style = "width: 100%;")),
-                   column(6, actionButton("next_bird_2", "Next", style = "width: 100%;"))
-                 ),
-                 hr(),
-                 
-                 # Season Selection and Analysis Options
-                 fluidRow(
-                   column(6, 
-                          radioButtons("analysis_type", "Analysis Type:", 
-                                       choices = list("Hotspot Analysis" = "hotspot",
-                                                      "Home Range Analysis" = "home_range",
-                                                      "Cluster Analysis" = "cluster"),
-                                       selected = "hotspot"),
+      tabPanel("Multiple Bird Comparison",
+               sidebarLayout(
+                 sidebarPanel(
+                   width = 6,
+                   # Bird 1 ID Selector with Buttons
+                   selectInput("bird_id_1", "Select Bird 1 ID:", choices = NULL),
+                   fluidRow(
+                     column(6, actionButton("prev_bird_1", "Previous", style = "width: 100%;")),
+                     column(6, actionButton("next_bird_1", "Next", style = "width: 100%;"))
                    ),
-                   column(6, uiOutput("season_toggle_ui_multiple"))
-                 ),
-                 hr(),
-                 tabsetPanel(
-                   id = "comparison_tabs",
-                   tabPanel("Bird Information Comparison",
-                            fluidPage(
-                              h3("Comparison of Bird Information"),
-                              htmlOutput("bird_info_multiple")
-                            )
+                   # Bird 2 ID Selector with Buttons
+                   selectInput("bird_id_2", "Select Bird 2 ID:", choices = NULL),
+                   fluidRow(
+                     column(6, actionButton("prev_bird_2", "Previous", style = "width: 100%;")),
+                     column(6, actionButton("next_bird_2", "Next", style = "width: 100%;"))
                    ),
+                   hr(),
                    
-                   tabPanel("Data Season Distribution",
-                            fluidPage(
-                              h3("Seasonal Distribution of Data Points"),
-                              p(textOutput("description_season_distribution")),
-                              plotOutput("season_overview_multiple", height = "300px")
-                            )
+                   # Season Selection and Analysis Options
+                   fluidRow(
+                     column(6, 
+                            radioButtons("analysis_type", "Analysis Type:", 
+                                         choices = list("Hotspot Analysis" = "hotspot",
+                                                        "Home Range Analysis" = "home_range",
+                                                        "Cluster Analysis" = "cluster"),
+                                         selected = "hotspot"),
+                     ),
+                     column(6, uiOutput("season_toggle_ui_multiple"))
                    ),
-                   
-                   tabPanel("Home Range Comparison",
-                            fluidPage(
-                              h3("Home Range Intersection"),
-                              p(textOutput("description_home_range")),
-                              plotOutput("analysis_plot", height = "300px")
-                            )
-                   ),
-                   
-                   tabPanel("DBScan Clusters Comparison",
-                            fluidPage(
-                              h3("DBScan Clusters - Comparison of Birds"),
-                              p(textOutput("description_dbscan")),
-                              plotOutput("dbscan_clusters_comparison_plot", height = "300px")
-                            )
+                   hr(),
+                   tabsetPanel(
+                     id = "comparison_tabs",
+                     tabPanel("Bird Information Comparison",
+                              fluidPage(
+                                h3("Comparison of Bird Information"),
+                                htmlOutput("bird_info_multiple")
+                              )
+                     ),
+                     
+                     tabPanel("Data Season Distribution",
+                              fluidPage(
+                                h3("Seasonal Distribution of Data Points"),
+                                p(textOutput("description_season_distribution")),
+                                plotOutput("season_overview_multiple", height = "300px")
+                              )
+                     ),
+                     
+                     tabPanel("Home Range Comparison",
+                              fluidPage(
+                                h3("Home Range Intersection"),
+                                p(textOutput("description_home_range")),
+                                plotOutput("analysis_plot", height = "300px")
+                              )
+                     ),
+                     
+                     tabPanel("DBScan Clusters Comparison",
+                              fluidPage(
+                                h3("DBScan Clusters - Comparison of Birds"),
+                                p(textOutput("description_dbscan")),
+                                plotOutput("dbscan_clusters_comparison_plot", height = "300px")
+                              )
+                     )
                    )
+                 ),
+                 mainPanel(
+                   width = 6,
+                   leafletOutput("compare_map", height = "80vh")
                  )
-               ),
-               mainPanel(
-                 width = 6,
-                 leafletOutput("compare_map", height = "80vh")
                )
-             )
-    )
+      )
   )
 )
 
