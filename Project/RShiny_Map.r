@@ -9,8 +9,6 @@ library(dplyr)
 library(tidyr)
 
 
-
-
 ui <- fluidPage(
   theme = shinytheme("yeti"),
   titlePanel("Bird Tracking Dashboard"),

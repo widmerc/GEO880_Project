@@ -91,72 +91,65 @@
 
     <!-- create sidebar -->
     <nav class="navbar navbar-dark fixed-top">
-        <a class=""></a>
-        <button
-          class="navbar-toggler collapsed"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-          style="padding: 1.3rem"
-        >
-          <span class="toggler-icon top-bar"></span>
-          <span class="toggler-icon middle-bar"></span>
-          <span class="toggler-icon bottom-bar"></span>
-        </button>
-        <div
-          class="collapse navbar-collapse"
-          id="navbarSupportedContent"
-          style="padding-right: 1.5rem"
-        >
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item ms-auto">
-              <a class="nav-link active" aria-current="page" href="#Start"
-                >Start</a
-              >
-            </li>
+      <a class=""></a>
+      <button
+        class="navbar-toggler collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+        style="padding: 1.3rem"
+      >
+        <span class="toggler-icon top-bar"></span>
+        <span class="toggler-icon middle-bar"></span>
+        <span class="toggler-icon bottom-bar"></span>
+      </button>
+      <div
+        class="collapse navbar-collapse"
+        id="navbarSupportedContent"
+        style="padding-right: 1.5rem"
+      >
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item ms-auto">
+            <a class="nav-link active" aria-current="page" href="#Start"
+              >Start</a
+            >
+          </li>
 
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#Abstract"
-                >Abstract</a
-              >
-            </li>
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#Abstract">Abstract</a>
+          </li>
 
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#Introduction"
-                >Introduction</a
-              >
-            </li>
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#Introduction">Introduction</a>
+          </li>
 
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#Methods">Material and Methods</a>
+          </li>
 
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#Methods"
-                >Material and Methods</a
-              >
-            </li>
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#Results">Results</a>
+          </li>
 
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#Results">Results</a>
-            </li>
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#Map">Map</a>
+          </li>
 
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#Map">Map</a>
-            </li>
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#Discussion">Discussion</a>
+          </li>
 
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#Discussion">Discussion</a>
-            </li>
-
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#Data">Data & Sources</a>
-            </li>
-            <li class="nav-item ms-auto">
-              <a class="nav-link" href="#section-about-us">About Us</a>
-            </li>
-          </ul>
-        </div>
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#Data">Data & Sources</a>
+          </li>
+          <li class="nav-item ms-auto">
+            <a class="nav-link" href="#section-about-us">About Us</a>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <!-- Hero Start -->
@@ -189,9 +182,9 @@
         <div class="text-white">
           <h1 class="hero__heading fw-bold mb-5">Movement Analysis</h1>
           <p class="lead mb-4">
-            This project analyzes movement patterns of the spotted Nutcracker
-            (Nucifraga caryocatactes) using GPS and sensor data from 115 tagged
-            individuals.
+            This project analyzes home ranges and detected clusterss of the
+            spotted Nutcracker (Nucifraga caryocatactes) using GPS and sensor
+            data from 115 tagged individuals.
           </p>
         </div>
       </div>
@@ -242,7 +235,7 @@
           <div class="col-12" style="height: 60px"></div>
         </div>
 
-        <div class="col-12 col-sm-12" id = "Introduction">
+        <div class="col-12 col-sm-12" id="Introduction">
           <div class="steps__content-width">
             <span>02</span>
             <h1 class="h2 mb-4">Introduction</h1>
@@ -278,91 +271,98 @@
           <ul class="rq-with-icons">
             <div class="row">
               <!-- Research Question 1 -->
-              <div class="col-12 col-md-6">
-                <li class="rq-item">
-                  <span class="rq-icon">
+              <div class="col-12 col-md-6 d-flex">
+                <li
+                  class="rq-item d-flex flex-fill align-items-center p-3 w-100 border rounded shadow-sm"
+                >
+                  <!-- Icon -->
+                  <div
+                    class="rq-icon d-flex align-items-center justify-content-center me-3"
+                    style="width: 40px; height: 40px"
+                  >
                     <i
                       class="bi bi-search"
-                      style="font-size: 1.8rem; color: black !important"
+                      style="font-size: 1.5rem; color: black !important"
                     ></i>
-                  </span>
+                  </div>
+                  <!-- Text -->
                   <div class="rq-content">
-                    <h5>Research Question 1</h5>
-                    <p>
-                      How do the movement patterns of birds differ during
-                      various life cycle phases?
+                    <h5 class="mb-1">Research Question 1</h5>
+                    <p class="mb-0">
+                      What are the home ranges of the birds, and to what extent
+                      do they overlap?
                     </p>
                   </div>
                 </li>
               </div>
+
               <!-- Research Question 2 -->
-              <div class="col-12 col-md-6">
-                <li class="rq-item">
-                  <span class="rq-icon">
+              <div class="col-12 col-md-6 d-flex">
+                <li
+                  class="rq-item d-flex flex-fill align-items-center p-3 w-100 border rounded shadow-sm"
+                >
+                  <div
+                    class="rq-icon d-flex align-items-center justify-content-center me-3"
+                    style="width: 40px; height: 40px"
+                  >
                     <i
                       class="bi bi-search"
-                      style="font-size: 1.8rem; color: black !important"
+                      style="font-size: 1.5rem; color: black !important"
                     ></i>
-                  </span>
+                  </div>
                   <div class="rq-content">
-                    <h5>Research Question 2</h5>
-                    <p>
-                      What differences exist between adult and juvenile movement
+                    <h5 class="mb-1">Research Question 2</h5>
+                    <p class="mb-0">
+                      How do the home ranges vary across different seasons?
+                    </p>
+                  </div>
+                </li>
+              </div>
+
+              <!-- Research Question 3 -->
+              <div class="col-12 col-md-6 d-flex">
+                <li
+                  class="rq-item d-flex flex-fill align-items-center p-3 w-100 border rounded shadow-sm"
+                >
+                  <div
+                    class="rq-icon d-flex align-items-center justify-content-center me-3"
+                    style="width: 40px; height: 40px"
+                  >
+                    <i
+                      class="bi bi-search"
+                      style="font-size: 1.5rem; color: black !important"
+                    ></i>
+                  </div>
+                  <div class="rq-content">
+                    <h5 class="mb-1">Research Question 3</h5>
+                    <p class="mb-0">
+                      How effective is DBSCAN in identifying bird clustering
                       patterns?
                     </p>
                   </div>
                 </li>
               </div>
-              <!-- Research Question 3 -->
-              <div class="col-12 col-md-6">
-                <li class="rq-item">
-                  <span class="rq-icon">
-                    <i
-                      class="bi bi-search"
-                      style="font-size: 1.8rem; color: black !important"
-                    ></i>
-                  </span>
-                  <div class="rq-content">
-                    <h5>Research Question 3</h5>
-                    <p>
-                      Can machine learning help us to identify important areas
-                      within individual home-ranges?
-                    </p>
-                  </div>
-                </li>
-              </div>
+
               <!-- Research Question 4 -->
-              <div class="col-12 col-md-6">
-                <li class="rq-item">
-                  <span class="rq-icon">
+              <div class="col-12 col-md-6 d-flex">
+                <li
+                  class="rq-item d-flex flex-fill align-items-center p-3 w-100 border rounded shadow-sm"
+                >
+                  <div
+                    class="rq-icon d-flex align-items-center justify-content-center me-3"
+                    style="width: 40px; height: 40px"
+                  >
                     <i
                       class="bi bi-search"
-                      style="font-size: 1.8rem; color: black !important"
+                      style="font-size: 1.5rem; color: black !important"
                     ></i>
-                  </span>
-                  <div class="rq-content">
-                    <h5>Research Question 4</h5>
-                    <p>
-                      To what extent do individual home ranges overlap
-                      seasonally?
-                    </p>
                   </div>
-                </li>
-              </div>
-              <!-- Research Question 5 -->
-              <div class="col-12 col-md-6">
-                <li class="rq-item">
-                  <span class="rq-icon">
-                    <i
-                      class="bi bi-search"
-                      style="font-size: 1.8rem; color: black !important"
-                    ></i>
-                  </span>
                   <div class="rq-content">
-                    <h5>Research Question 5</h5>
-                    <p>
-                      To what extent are harvesting-, caching- and nesting-sites
-                      overlapping among individuals?
+                    <h5 class="mb-1">Research Question 4</h5>
+                    <p class="mb-0">
+                      How effective can an R Shiny application be in detecting
+                      and visualising the patterns addressed in Research
+                      Questions 1–3?
                     </p>
                   </div>
                 </li>
@@ -404,10 +404,12 @@
           </span>
           <h5 class="fw-bold">Topic Search</h5>
           <p class="text-muted mb-2 fw-bold">
-            Internet, Books, Articles, Journals
+            Internet & Articles (done by: Both)
           </p>
           <p class="text-muted">
-            In the first step, suitable topics were searched for.
+            In the initial phase, we explored potential topics for our project.
+            Since Robin had strong connections with <em>Vogelwarte Schweiz</em>,
+            we decided to focus on bird movement as a compelling subject.
           </p>
         </li>
         <!-- Data retrieval -->
@@ -457,10 +459,97 @@
           </span>
 
           <h5 class="fw-bold">Data Retrieval</h5>
-          <p class="text-muted mb-2 fw-bold">Vogelwarte.ch</p>
+          <p class="text-muted mb-2 fw-bold">Vogelwarte.ch (done by: Robin)</p>
           <p class="text-muted">
             The data was gathered from the Vogelwarte Switzerland (see
             <a href="#Data">here</a>).
+          </p>
+        </li>
+
+        <!-- EDA -->
+        <li class="timeline-item mb-5">
+          <span class="timeline-icon">
+            <svg
+              fill="#000000"
+              width="800px"
+              height="800px"
+              viewBox="0 0 32 32"
+              id="icon"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <style>
+                  .cls-1 {
+                    fill-rule: evenodd;
+                  }
+
+                  .cls-2 {
+                    fill: none;
+                  }
+                </style>
+              </defs>
+              <title>logo--r-script</title>
+              <path
+                class="cls-1"
+                d="M30,14.7842c0-5.1782-6.2681-9.376-14-9.376S2,9.606,2,14.7842c0,4.6147,4.9814,8.4419,11.5361,9.2226v2.9917l4.7762-.0019,0-2.9741a19.3812,19.3812,0,0,0,3.3418-.6646L23.593,27l5.3975-.0024-3.253-5.4849C28.3625,19.8086,30,17.4263,30,14.7842Zm-22.4983.7c0-3.54,4.7644-6.41,10.6414-6.41s10.2138,1.9629,10.2138,6.41A5.4694,5.4694,0,0,1,24.9587,20.61a3.2252,3.2252,0,0,0-.2978-.1749,10.4735,10.4735,0,0,0-1.34-.5048s4.1743-.31,4.1743-4.4659-4.3684-4.2343-4.3684-4.2343H13.5361V21.2554C9.97,20.22,7.5017,18.0283,7.5017,15.4839Zm13.7422,1.8452-2.8928.001.0014-2.6812,2.8914.0015a1.2476,1.2476,0,0,1,1.34,1.3149A1.3232,1.3232,0,0,1,21.2439,17.3291Zm-2.9326,3.4946h1.2825a.8785.8785,0,0,1,.6406.291,3.2917,3.2917,0,0,1,.51.63,22.4033,22.4033,0,0,1-2.4326.1455Z"
+              />
+              <rect
+                id="_Transparent_Rectangle_"
+                data-name="&lt;Transparent Rectangle&gt;"
+                class="cls-2"
+                width="32"
+                height="32"
+              />
+            </svg>
+          </span>
+          <h5 class="fw-bold">Exploratory Data Analysis (EDA)</h5>
+          <p class="text-muted mb-2 fw-bold">R (done by: Robin)</p>
+          <p class="text-muted">
+            Before we started the main analysis, we took a first look at the
+            data. We wanted to understand how the data is structured and if
+            there are any patterns or unusual values. For this, we used simple
+            statistics and visualisations — all done in R.
+          </p>
+          <p class="d-inline-flex gap-1">
+            <a
+              class="btn btn-outline-secondary"
+              data-bs-toggle="collapse"
+              href="#collapseExample_EDA"
+              role="button"
+              aria-expanded="false"
+              aria-controls="collapseExample_EDA"
+            >
+              Curious about the results and the code? Click here to view it.
+            </a>
+          </p>
+          <div class="collapse" id="collapseExample_EDA">
+            <div class="card card-body" style="background-color: #dedede6c">
+              <strong
+                ><code>
+                  <p>
+                    Hier kommen Grafiken/Anpassungen von Robin zu der EDA
+                  </p></code
+                ></strong
+              >
+              For easier access, we have published our code on our GitHub
+              Project. You can find it here:
+              <a
+                href="https://github.com/widmerc/GEO880_Project/tree/main/Project"
+                target="_blank"
+              >
+                GitHub – GEO880 Project Repository </a
+              ><br />
+              The main preprocessing is described in the file:
+              <strong><code>EDA.qmd</code></strong>
+            </div>
+          </div>
+        </li>
+        <!-- Titel Analyse -->
+        <li class="timeline-item mb-5">
+          <span class="timeline-title"> </span>
+          <h2 class="fw-bold">Analysis</h2>
+          <p class="text-muted">
+            After preprocessing in R, we will address our research questions.
           </p>
         </li>
 
@@ -500,10 +589,15 @@
               />
             </svg>
           </span>
-          <h5 class="fw-bold">Preprocessing</h5>
-          <p class="text-muted mb-2 fw-bold">R</p>
-          <p class="text-muted">Explain the Preprocessing steps here ...</p>
-
+          <h5 class="fw-bold">Data Processing & Export</h5>
+          <p class="text-muted mb-2 fw-bold">R (done by: Both)</p>
+          <p class="text-muted">
+            Before integrating the data into the RShiny application, we perform
+            preprocessing. To enhance performance, all necessary calculations
+            and data transformations are conducted at this stage. The processed
+            data is then exported as .geojson or .csv files, ready for seamless
+            import into the RShiny app.
+          </p>
           <p class="d-inline-flex gap-1">
             <a
               class="btn btn-outline-secondary"
@@ -511,324 +605,81 @@
               href="#collapseExample1"
               role="button"
               aria-expanded="false"
-              aria-controls="collapseExample3"
+              aria-controls="collapseExample1"
             >
-              Want to see the code? Click here.
+              More curious (Code & More Information)? Click here to view it.
             </a>
           </p>
           <div class="collapse" id="collapseExample1">
             <div class="card card-body" style="background-color: #dedede6c">
-              <div class="card-body">
-                <pre><code class="language-r">
-                # Load required libraries
-                library(shiny)
-                library(dplyr)
-                library(sf)
-                library(tmap)
-                library(tidyr)
-                library(rlang)
-                
-                # Load the new bird GPS data
-                bird_data <- read.csv("data/NuCra_Davos_all_data_2025-02-07_V2.csv")
-                
-                # Check and handle missing values
-                bird_data <- bird_data %>% drop_na(longitude, latitude, datetime)
-                
-                # Convert datetime to proper format
-                bird_data$datetime <- as.POSIXct(bird_data$datetime, format="%Y-%m-%d %H:%M:%S", tz="UTC")
-                
-                # Convert to sf object
-                bird_data <- bird_data %>%
-                  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
-                  arrange(id, datetime)
-                
-                # Create line geometries per bird, and KEEP ALL ATTRIBUTES needed for filtering
-                bird_tracks <- bird_data %>%
-                  group_by(id) %>%
-                  summarise(
-                    geometry = st_cast(st_combine(geometry), "LINESTRING"),
-                    # Add all columns for filtering and information
-                    hdop = mean(hdop, na.rm = TRUE),
-                    altitude = mean(altitude, na.rm = TRUE),
-                    satellites = mean(satellites, na.rm = TRUE),
-                    tag_type = first(tag.type),
-                    year = first(year),
-                    month = first(month),
-                    season = first(season),
-                    brutzeit = first(brutzeit),
-                    ring_no = first(ring_no),
-                    bag = first(bag),
-                    bird_and_bag = first(bird_and_bag),
-                    weight = first(weight),
-                    wing_length = first(wing_length),
-                    bill_depth = first(bill_depth),
-                    bill_length = first(bill_length),
-                    tarsus_length = first(tarsus_length),
-                    feathers = first(feathers),
-                    stage_at_capture = first(stage.at.capture),
-                    photo = first(photo),
-                    datetime_at_capture = first(datetime.at.capture),
-                    timediff = mean(timediff, na.rm = TRUE),
-                    steplength = sum(steplength, na.rm = TRUE),
-                    stepsize_from_last_hour = mean(stepsize.from.last.hour, na.rm = TRUE),
-                    stage_current = first(stage.current),
-                    id_stage = first(id.stage),
-                    date = first(date),
-                    ndays_new = first(ndays.new),
-                    n_datapoints = first(n.datapoints),
-                    dates_spanned_per_year = first(dates.spanned.per.year),
-                    .groups = 'drop'
-                  )
-                        </code></pre>
-              </div>
-            </div>
-          </div>
-        </li>
-        <!-- Titel Analyse -->
-        <li class="timeline-item mb-5">
-          <span class="timeline-title"> </span>
-          <h2 class="fw-bold">Analysis</h2>
-          <p class="text-muted">
-            After preprocessing in R, we will address our research questions.
-          </p>
-        </li>
-        <!-- Research Question 1 -->
-        <li class="timeline-item mb-5">
-          <span class="timeline-icon">
-            <svg
-              fill="#000000"
-              viewBox="0 0 32 32"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  d="M16 25.093c-8.839 0-16-4.796-16-10.719 0-5.916 7.161-10.713 16-10.713s16 4.797 16 10.713c0 5.923-7.161 10.719-16 10.719zM18.448 7.849c-6.713 0-12.161 3.281-12.161 7.328s5.448 7.328 12.161 7.328c6.713 0 11.677-2.245 11.677-7.328 0-5.084-4.959-7.328-11.677-7.328zM24.364 20.26c0.527 0.156 1.037 0.349 1.537 0.579 0.287 0.14 0.547 0.328 0.776 0.552 0.14 0.151 0.26 0.323 0.353 0.511l3.819 6.437h-6.172l-2.885-5.417c-0.265-0.473-0.584-0.911-0.953-1.307-0.188-0.208-0.453-0.333-0.735-0.333h-1.464v7.052l-5.457 0.005v-18.021h10.963c0 0 4.991 0.089 4.991 4.839 0.009 2.693-2.079 4.932-4.772 5.104zM21.995 14.224h-3.307v3.063h3.307c0.86 0.011 1.557-0.699 1.532-1.557 0.047-0.865-0.672-1.568-1.532-1.505z"
-                ></path>
-              </g>
-            </svg>
-          </span>
+              <p>
+                For easier access, we have published our code on our GitHub
+                Project. You can find it here:
+                <a
+                  href="https://github.com/widmerc/GEO880_Project/tree/main/Project"
+                  target="_blank"
+                >
+                  GitHub – GEO880 Project Repository
+                </a>
+              </p>
+              <p>
+                The main preprocessing is described in the file:
+                <strong><code>Preprocessing_RShiny.qmd</code></strong>
+              </p>
 
-          <h5 class="fw-bold">
-            Research Question 1: How do the movement patterns of birds differ
-            during various life cycle phases?
-          </h5>
-          <p class="text-muted mb-2 fw-bold">R</p>
-          <p class="text-muted">Describe Method for RQ 1</p>
-          <p class="d-inline-flex gap-1">
-            <a
-              class="btn btn-outline-secondary"
-              data-bs-toggle="collapse"
-              href="#collapseExample10"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseExample10"
-            >
-              Want to see the code? Click here.
-            </a>
-          </p>
-          <div class="collapse" id="collapseExample10">
-            <div class="card card-body" style="background-color: #dedede6c">
-              <pre><code class="language-r">
-                # Example Code
-                        </code></pre>
-            </div>
-          </div>
-        </li>
-        <!-- Research Question 2 -->
-        <li class="timeline-item mb-5">
-          <span class="timeline-icon">
-            <svg
-              fill="#000000"
-              viewBox="0 0 32 32"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  d="M16 25.093c-8.839 0-16-4.796-16-10.719 0-5.916 7.161-10.713 16-10.713s16 4.797 16 10.713c0 5.923-7.161 10.719-16 10.719zM18.448 7.849c-6.713 0-12.161 3.281-12.161 7.328s5.448 7.328 12.161 7.328c6.713 0 11.677-2.245 11.677-7.328 0-5.084-4.959-7.328-11.677-7.328zM24.364 20.26c0.527 0.156 1.037 0.349 1.537 0.579 0.287 0.14 0.547 0.328 0.776 0.552 0.14 0.151 0.26 0.323 0.353 0.511l3.819 6.437h-6.172l-2.885-5.417c-0.265-0.473-0.584-0.911-0.953-1.307-0.188-0.208-0.453-0.333-0.735-0.333h-1.464v7.052l-5.457 0.005v-18.021h10.963c0 0 4.991 0.089 4.991 4.839 0.009 2.693-2.079 4.932-4.772 5.104zM21.995 14.224h-3.307v3.063h3.307c0.86 0.011 1.557-0.699 1.532-1.557 0.047-0.865-0.672-1.568-1.532-1.505z"
-                ></path>
-              </g>
-            </svg>
-          </span>
+              <hr />
 
-          <h5 class="fw-bold">
-            Research Question 2: What differences exist between adult and
-            juvenile movement patterns?
-          </h5>
-          <p class="text-muted mb-2 fw-bold">R</p>
-          <p class="text-muted">Describe Method for RQ 2</p>
-          <p class="d-inline-flex gap-1">
-            <a
-              class="btn btn-outline-secondary"
-              data-bs-toggle="collapse"
-              href="#collapseExample11"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseExample11"
-            >
-              Want to see the code? Click here.
-            </a>
-          </p>
-          <div class="collapse" id="collapseExample11">
-            <div class="card card-body" style="background-color: #dedede6c">
-              <pre><code class="language-r">
-                # Example Code
-                        </code></pre>
-            </div>
-          </div>
-        </li>
-        <!-- Research Question 3 -->
-        <li class="timeline-item mb-5">
-          <span class="timeline-icon">
-            <svg
-              fill="#000000"
-              viewBox="0 0 32 32"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  d="M16 25.093c-8.839 0-16-4.796-16-10.719 0-5.916 7.161-10.713 16-10.713s16 4.797 16 10.713c0 5.923-7.161 10.719-16 10.719zM18.448 7.849c-6.713 0-12.161 3.281-12.161 7.328s5.448 7.328 12.161 7.328c6.713 0 11.677-2.245 11.677-7.328 0-5.084-4.959-7.328-11.677-7.328zM24.364 20.26c0.527 0.156 1.037 0.349 1.537 0.579 0.287 0.14 0.547 0.328 0.776 0.552 0.14 0.151 0.26 0.323 0.353 0.511l3.819 6.437h-6.172l-2.885-5.417c-0.265-0.473-0.584-0.911-0.953-1.307-0.188-0.208-0.453-0.333-0.735-0.333h-1.464v7.052l-5.457 0.005v-18.021h10.963c0 0 4.991 0.089 4.991 4.839 0.009 2.693-2.079 4.932-4.772 5.104zM21.995 14.224h-3.307v3.063h3.307c0.86 0.011 1.557-0.699 1.532-1.557 0.047-0.865-0.672-1.568-1.532-1.505z"
-                ></path>
-              </g>
-            </svg>
-          </span>
+              <h6 class="fw-bold">Overview of Preprocessing Steps</h6>
+              <ul>
+                <li>
+                  Data cleaning: removed missing coordinates and known faulty
+                  entries.
+                </li>
+                <li>
+                  Date conversion: standardised timestamps for temporal
+                  filtering.
+                </li>
+                <li>
+                  Spatial conversion: transformed data into spatial features
+                  (using <code>sf</code>).
+                </li>
+                <li>
+                  Season tagging: assigned each point to a seasonal category
+                  (Breeding, Harvesting, Winter).
+                </li>
+                <li>
+                  Track generation: created bird movement lines per ID and
+                  month.
+                </li>
+                <li>
+                  Clustering (DBScan): applied density-based clustering for each
+                  bird across seasons and overall.
+                </li>
+                <li>
+                  Export: saved processed data as <code>.geojson</code> and
+                  <code>.csv</code> for direct app integration.
+                </li>
+              </ul>
 
-          <h5 class="fw-bold">
-            Research Question 3: Can machine learning help us to identify
-            important areas within individual home-ranges?
-          </h5>
-          <p class="text-muted mb-2 fw-bold">R</p>
-          <p class="text-muted">Describe Method for RQ 3</p>
-          <p class="d-inline-flex gap-1">
-            <a
-              class="btn btn-outline-secondary"
-              data-bs-toggle="collapse"
-              href="#collapseExample12"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseExample12"
-            >
-              Want to see the code? Click here.
-            </a>
-          </p>
-          <div class="collapse" id="collapseExample12">
-            <div class="card card-body" style="background-color: #dedede6c">
-              <pre><code class="language-r">
-                # Example Code
-                        </code></pre>
-            </div>
-          </div>
-        </li>
-        <!-- Research Question 4 -->
-        <li class="timeline-item mb-5">
-          <span class="timeline-icon">
-            <svg
-              fill="#000000"
-              viewBox="0 0 32 32"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  d="M16 25.093c-8.839 0-16-4.796-16-10.719 0-5.916 7.161-10.713 16-10.713s16 4.797 16 10.713c0 5.923-7.161 10.719-16 10.719zM18.448 7.849c-6.713 0-12.161 3.281-12.161 7.328s5.448 7.328 12.161 7.328c6.713 0 11.677-2.245 11.677-7.328 0-5.084-4.959-7.328-11.677-7.328zM24.364 20.26c0.527 0.156 1.037 0.349 1.537 0.579 0.287 0.14 0.547 0.328 0.776 0.552 0.14 0.151 0.26 0.323 0.353 0.511l3.819 6.437h-6.172l-2.885-5.417c-0.265-0.473-0.584-0.911-0.953-1.307-0.188-0.208-0.453-0.333-0.735-0.333h-1.464v7.052l-5.457 0.005v-18.021h10.963c0 0 4.991 0.089 4.991 4.839 0.009 2.693-2.079 4.932-4.772 5.104zM21.995 14.224h-3.307v3.063h3.307c0.86 0.011 1.557-0.699 1.532-1.557 0.047-0.865-0.672-1.568-1.532-1.505z"
-                ></path>
-              </g>
-            </svg>
-          </span>
-
-          <h5 class="fw-bold">
-            Research Question 4: To what extent do individual home ranges
-            overlap seasonally?
-          </h5>
-          <p class="text-muted mb-2 fw-bold">R</p>
-          <p class="text-muted">Describe Method for RQ 4</p>
-          <p class="d-inline-flex gap-1">
-            <a
-              class="btn btn-outline-secondary"
-              data-bs-toggle="collapse"
-              href="#collapseExample13"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseExample13"
-            >
-              Want to see the code? Click here.
-            </a>
-          </p>
-          <div class="collapse" id="collapseExample13">
-            <div class="card card-body" style="background-color: #dedede6c">
-              <pre><code class="language-r">
-                # Example Code
-                        </code></pre>
-            </div>
-          </div>
-        </li>
-        <!-- Research Question 5 -->
-        <li class="timeline-item mb-5">
-          <span class="timeline-icon">
-            <svg
-              fill="#000000"
-              viewBox="0 0 32 32"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  d="M16 25.093c-8.839 0-16-4.796-16-10.719 0-5.916 7.161-10.713 16-10.713s16 4.797 16 10.713c0 5.923-7.161 10.719-16 10.719zM18.448 7.849c-6.713 0-12.161 3.281-12.161 7.328s5.448 7.328 12.161 7.328c6.713 0 11.677-2.245 11.677-7.328 0-5.084-4.959-7.328-11.677-7.328zM24.364 20.26c0.527 0.156 1.037 0.349 1.537 0.579 0.287 0.14 0.547 0.328 0.776 0.552 0.14 0.151 0.26 0.323 0.353 0.511l3.819 6.437h-6.172l-2.885-5.417c-0.265-0.473-0.584-0.911-0.953-1.307-0.188-0.208-0.453-0.333-0.735-0.333h-1.464v7.052l-5.457 0.005v-18.021h10.963c0 0 4.991 0.089 4.991 4.839 0.009 2.693-2.079 4.932-4.772 5.104zM21.995 14.224h-3.307v3.063h3.307c0.86 0.011 1.557-0.699 1.532-1.557 0.047-0.865-0.672-1.568-1.532-1.505z"
-                ></path>
-              </g>
-            </svg>
-          </span>
-
-          <h5 class="fw-bold">
-            Research Question 5: To what extent are harvesting-, caching- and
-            nesting-sites overlapping among individuals?
-          </h5>
-          <p class="text-muted mb-2 fw-bold">R</p>
-          <p class="text-muted">Describe Method for RQ 5</p>
-          <p class="d-inline-flex gap-1">
-            <a
-              class="btn btn-outline-secondary"
-              data-bs-toggle="collapse"
-              href="#collapseExample14"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseExample14"
-            >
-              Want to see the code? Click here.
-            </a>
-          </p>
-          <div class="collapse" id="collapseExample14">
-            <div class="card card-body" style="background-color: #dedede6c">
-              <pre><code class="language-r">
-                # Example Code
-                        </code></pre>
+              <h6 class="fw-bold mt-3">Additional Processing</h6>
+              <ul>
+                <li>
+                  Visual inspection of clusters to verify correctness (with
+                  <code>tmap</code>).
+                </li>
+                <li>
+                  Convex hull generation: created spatial polygons around
+                  clusters.
+                </li>
+                <li>
+                  Overlap matrix: calculated spatial overlaps between birds to
+                  study shared areas.
+                </li>
+                <li>
+                  Helper functions: provided tools to query overlapping bird
+                  IDs.
+                </li>
+              </ul>
             </div>
           </div>
         </li>
@@ -852,8 +703,8 @@
             ></i>
           </span>
 
-          <h5 class="fw-bold">Website and Map Sketch</h5>
-          <p class="text-muted mb-2 fw-bold">Paper and Pen</p>
+          <h5 class="fw-bold">Map Sketch</h5>
+          <p class="text-muted mb-2 fw-bold">Paper and Pen (done by: Claude)</p>
           <p class="text-muted">
             We chose the R Shiny framework to create our interactive web map. We
             tried to replicate the initial sketch of the web map and adapted the
@@ -875,54 +726,112 @@
             <div class="card card-body" style="background-color: #dedede6c">
               <div class="mb-3">
                 <img
-                  src="./Webseite/img/Tannenhäher.jpg"
+                  src="./Webseite/img/Rshiny_Draft.png"
                   alt="Map Layout"
                   class="img-fluid float-start me-3"
                   style="max-height: 450px; object-fit: cover !important"
                 />
+
+                <p class="text-muted">
+                  This sketch shows the first concept of our interactive web
+                  map. The goal was to design an intuitive and easy-to-use
+                  interface, with clearly separated sections for filtering,
+                  statistics, and visualisation. An important idea from the
+                  beginning was to include a <strong>help (?) button</strong>
+                  to support users unfamiliar with the interface, ensuring
+                  accessibility and clarity.
+                </p>
               </div>
             </div>
           </div>
         </li>
 
-        <!-- Map Creation R -->
-        <div class="collapse" id="collapseExample">
-          <div class="card card-body" style="background-color: #dedede6c">
-            <div class="mb-3">
-              <a id="MapDesign"></a>
-              <h5 class="fw-bold">General Information</h5>
-              <p>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                Provident, quibusdam perspiciatis, recusandae qui veniam
-                aspernatur.
-              </p>
-              <ul>
-                <li>Text text</li>
-              </ul>
-              <br />
-              <p>
-                With the map it should be possible to successfully answer our
-                research questions, which are as follows:
-              </p>
-              <ol>
-                <li>Text text</li>
-              </ol>
-              <br />
-            </div>
+        <!-- RShiny -->
+        <li class="timeline-item mb-5">
+          <span class="timeline-icon">
+            <i
+              class="bi bi-patch-question-fill"
+              style="font-size: 1.8rem; color: black !important"
+            ></i>
+          </span>
 
-            <div class="mb-3">
-              <h5 class="fw-bold">Map Layout</h5>
-              <img
-                src="./Webseite/img/Tannenhäher.jpg"
-                alt="Map Layout"
-                class="img-fluid float-start me-3"
-                width="900px !important;"
-              />
+          <h5 class="fw-bold">RShiny Development</h5>
+          <p class="text-muted mb-2 fw-bold">R (done by: Claude)</p>
+          <p class="text-muted">
+            We developed the entire interactive dashboard using R Shiny. It
+            allows users to explore, filter, and compare bird tracking data
+            through a dynamic and user-friendly web interface.
+          </p>
+          <p class="d-inline-flex gap-1">
+            <a
+              class="btn btn-outline-secondary"
+              data-bs-toggle="collapse"
+              href="#collapseExample_Rshiny"
+              role="button"
+              aria-expanded="false"
+              aria-controls="collapseExample_Rshiny"
+            >
+              Show R Shiny Overview and Logic
+            </a>
+          </p>
+          <div class="collapse" id="collapseExample_Rshiny">
+            <div class="card card-body" style="background-color: #dedede6c">
+              <div class="mb-3">
+                <h5 class="fw-bold">Overview</h5>
+                <p class="text-muted">
+                  This section provides an overview of the interactive dashboard
+                  we built using <strong>R Shiny</strong>. The main goal was to
+                  create a <strong>simple and intuitive interface</strong> to
+                  explore bird tracking data, compare individuals, and analyse
+                  movement patterns. <br /><br />
+                  Users can easily navigate through individual birds using
+                  <strong>Next/Previous buttons</strong>, apply seasonal
+                  filters, and switch between various statistical views. The
+                  <strong>interactive map</strong> updates dynamically based on
+                  user input. <br /><br />
+                  A <strong>help (?) button</strong> is placed in the top right
+                  corner to offer clear guidance and explain each dashboard
+                  feature. This ensures that new users can easily understand the
+                  app without prior training.
+                </p>
+
+                <h6 class="fw-bold mt-4">How the Code Works</h6>
+                <p class="text-muted">
+                  The app is built around the <code>ui</code> and
+                  <code>server</code> components of R Shiny. Data is loaded and
+                  pre-processed from GeoJSON and CSV files. <br /><br />
+                  - <code>reactive()</code> and <code>observeEvent()</code> are
+                  used to update visual elements when the user selects a
+                  different bird or season.<br />
+                  - The <code>mbp</code> variable stores the
+                  <strong>95% Minimum Bounding Polygon</strong> (MCP), which
+                  shows the home range of a bird based on spatial data. It is
+                  calculated with <code>st_convex_hull()</code> and filtered by
+                  distance quantiles.<br />
+                  - All maps are rendered using <strong>leaflet</strong>, with
+                  overlays for <em>Tracks</em>, <em>Points</em>,
+                  <em>Clusters</em>, and <em>Home Ranges</em>.<br />
+                  - Multiple plots are created using <code>ggplot2</code> and
+                  updated dynamically with seasonal or individual bird data.
+                </p>
+                <hr />
+                <p>
+                  For easier access, we have published our code on our GitHub
+                  Project. You can find it here:
+                  <a
+                    href="https://github.com/widmerc/GEO880_Project/tree/main/Project"
+                    target="_blank"
+                  >
+                    GitHub – GEO880 Project Repository </a
+                  ><br />
+                  The main preprocessing is described in the file:
+                  <strong><code>RShiny_Map.r</code></strong>
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </li>
 
-        <!-- Website Creation Bootstrap 5 -->
         <li class="timeline-item mb-5">
           <span class="timeline-icon">
             <i
@@ -932,7 +841,12 @@
           </span>
           <h5 class="fw-bold">Website Creation</h5>
           <p class="text-muted mb-2 fw-bold">
-            HTML/CSS/JS (Bootstrap 5 Framework)
+            HTML/CSS/JS (Bootstrap 5 Framework / done by: Claude)
+          </p>
+          <p class="text-muted">
+            The project website was built using Bootstrap 5. It provides a clean
+            and responsive layout, styled components, and an interactive
+            timeline to present all project stages.
           </p>
           <p class="d-inline-flex gap-1">
             <a
@@ -943,43 +857,64 @@
               aria-expanded="false"
               aria-controls="collapseExample2"
             >
-              Want to know more? Click here.
+              Show Website Overview and Logic
             </a>
           </p>
           <div class="collapse" id="collapseExample2">
             <div class="card card-body" style="background-color: #dedede6c">
               <div class="mb-3">
-                <h5 class="fw-bold">
-                  <i class="bi bi-bootstrap"></i> Bootstrap 5
-                </h5>
+                <h5 class="fw-bold">Overview</h5>
+                <p class="text-muted">
+                  We created the website using <strong>Bootstrap 5</strong>, a
+                  modern CSS framework that enables mobile-first, responsive web
+                  design. The grid system was used to align content and
+                  components in a structured and flexible way. <br /><br />
+                  All sections are wrapped in a vertical
+                  <strong>timeline layout</strong>, with icons, expandable
+                  cards, and call-to-action buttons. It’s designed to work well
+                  across different devices and screen sizes.
+                </p>
 
-                <div style="height: 10px"></div>
-                <figure>
-                  <blockquote class="blockquote">
-                    <p>
-                      Bootstrap 5 is a free and open-source front-end framework
-                      developed by Twitter. Bootstrap includes a 12-column grid
-                      system that adapts to different screen sizes, ensuring
-                      responsive web design. It offers various classes to create
-                      flexible and adaptive layouts. <br />
-                      <a href="https://getbootstrap.com/" target="_blank">
-                        Read More about this topic
-                        <i class="bi bi-arrow-right"></i>
-                      </a>
-                    </p>
-                  </blockquote>
-                </figure>
-                <img
-                  src="./Webseite/img/bootstrap5.png"
-                  alt="Bootstrap5"
-                  class="rounded"
-                  loading="lazy"
-                  style="height: 10rem"
-                />
-                <figcaption class="blockquote-footer">
-                  Bootstrap grid example
-                  <cite title="Source Title">https://getbootstrap.com/</cite>
-                </figcaption>
+                <h6 class="fw-bold mt-4">How the Code Works</h6>
+                <p class="text-muted">
+                  The layout uses the <code>.container</code>,
+                  <code>.row</code>, and <code>.col-*</code> classes to ensure
+                  proper spacing and alignment. <br /><br />
+                  Each project phase is a <code>.timeline-item</code> with
+                  custom icons and collapsible content using
+                  <code>data-bs-toggle="collapse"</code>. <br /><br />
+                  Additional Bootstrap classes like <code>.btn</code>,
+                  <code>.card</code>, and <code>.text-muted</code> were used to
+                  ensure a clean and consistent design.
+                </p>
+
+                <div class="text-center mt-4">
+                  <img
+                    src="./Webseite/img/bootstrap5.png"
+                    alt="Bootstrap 5 Grid Example"
+                    class="rounded"
+                    loading="lazy"
+                    style="height: 10rem"
+                  />
+                  <figcaption class="blockquote-footer mt-2">
+                    Bootstrap grid example
+                    <cite title="Source Title">https://getbootstrap.com/</cite>
+                  </figcaption>
+
+                  <hr />
+                <p>
+                  For easier access, we have published our code on our GitHub
+                  Project. You can find it here:
+                  <a
+                    href="https://github.com/widmerc/GEO880_Project"
+                    target="_blank"
+                  >
+                    GitHub – GEO880 Project Repository </a
+                  ><br />
+                  The Source Code for this Website is found here:
+                  <strong><code>index.html / Website Folder</code></strong>
+                </p>
+                </div>
               </div>
             </div>
           </div>
@@ -996,7 +931,7 @@
           <h5 class="fw-bold">Final Product</h5>
           <p class="text-muted mb-2 fw-bold">
             <a href="#Map"
-              >Go Back to the Map
+              >Go to the Map
               <i class="bi bi-arrow-right"></i>
             </a>
           </p>
@@ -1007,15 +942,26 @@
 
     <!-- Section Two Start -->
     <section class="steps steps--background" id="Results">
-      <div class="container-custom" id = "Map">
+      <div class="container-custom" id="Map">
         <div class="row">
           <div class="col-12">
             <span>05</span>
             <h1 class="h2 mb-4">Results</h1>
           </div>
         </div>
-        <div class="row" style="height: 10px"></div>
-
+        <p>
+          <a
+            class="btn"
+            style="
+              background-color: var(--accent_color);
+              color: white;
+              border: none;
+            "
+            onclick="openFullscreen()"
+          >
+            View Fullscreen
+          </a>
+        </p>
         <div class="row">
           <div class="col">
             <iframe
@@ -1039,6 +985,20 @@
       </div>
     </section>
     <!-- Section Two End -->
+
+    <!-- Fullscreen JS -->
+    <script>
+      function openFullscreen() {
+        const iframe = document.getElementById("map");
+        if (iframe.requestFullscreen) {
+          iframe.requestFullscreen();
+        } else if (iframe.webkitRequestFullscreen) {
+          iframe.webkitRequestFullscreen(); // Safari
+        } else if (iframe.msRequestFullscreen) {
+          iframe.msRequestFullscreen(); // IE11
+        }
+      }
+    </script>
 
     <!-- Section Three Start-->
     <section class="steps" id="Discussion">
@@ -1376,15 +1336,17 @@
                 <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3" />
               </svg>
               <div style="height: 12px"></div>
-              <h3>Claude Widmer</h3>
-              <p>
-                Claude Widmer is studying Geography with emphasis on GIS. In
-                this Project he was responsible for:<br />
-                - Website creation <br />
-                - ... <br />
-                - ... <br />
-                - ... <br />
-              </p>
+              <h3>About Me</h3>
+  <p>
+    I'm Claude Widmer and I work in the field of GIS. I'm currently studying Geographic Information Science and Cartography at the University of Zurich.
+  </p>
+  <p>
+    In my free time, I like to explore web technologies and work on side projects related to mapping and data.
+  </p>
+<a href="https://www.claudewidmer.ch/" target="_blank" class="btn btn-secondary btn">
+  Visit my personal website
+</a>
+
             </div>
 
             <div class="col-12 col-sm-6 mb-6">
@@ -1406,12 +1368,7 @@
 
               <h3>Robin Merz</h3>
               <p>
-                Robin Merz is studying Biology. In this Project he was
-                responsible for:<br />
-                - Literature research <br />
-                - ... <br />
-                - ... <br />
-                - ... <br />
+                Robin Merz is studying Biology and ...
               </p>
             </div>
           </div>
@@ -1428,7 +1385,8 @@
         <div class="col-md-6 d-flex align-items-center">
           <a class="me-2 text-muted text-decoration-none">
             2025/GEO888 - Made with
-            <i class="bi bi-heart" style="color: var(--accent-color)"></i> by <br />
+            <i class="bi bi-heart" style="color: var(--accent-color)"></i> by
+            <br />
             <span>Robin Merz & Claude Widmer</span>
           </a>
         </div>
