@@ -1,0 +1,295 @@
+---
+title: "Preprocessing RShiny"
+author: "Group6 - Claude Widmer"
+format: html
+editor: visual
+---
+
+# Preprocessing For RShiny App
+
+Before integrating the data into the RShiny application, we perform preprocessing after the initial exploratory data analysis (EDA). To enhance performance, all necessary calculations and data transformations are conducted at this stage. The processed data is then exported as .geojson or .csv files, ready for seamless import into the RShiny app.
+
+```{r}
+#| message: false
+#| warning: false
+library(dplyr)
+library(sf)
+library(tmap)
+library(tidyr)
+library(dbscan)
+library(sf)
+
+
+bird_data <- read.csv("00_data/NuCra_Davos_all_data_2025-02-07_V2.csv")
+
+# Check and handle missing values if any
+bird_data <- bird_data %>% drop_na(longitude, latitude, datetime)
+remove_ids <- c(48325, 15381, 15382, 15383, 45363, 7949)
+bird_data <- bird_data %>% filter(!X %in% remove_ids)
+
+# Convert datetime to proper format
+bird_data$datetime <- as.POSIXct(bird_data$datetime, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+
+# Convert to sf object
+bird_data <- bird_data %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
+  arrange(id, datetime) %>%
+  mutate(season = case_when(
+    month >= 2 & month <= 6 ~ "Breeding Time",
+    month >= 7 & month <= 10 ~ "Harvesting Time",
+    month %in% c(11, 12, 1) ~ "Winter",
+    TRUE ~ NA_character_
+  ))
+
+# Reduce COlumns:
+bird_data <- bird_data %>%
+  select(
+    datetime,
+    timediff,
+    altitude,
+    id,
+    steplength,
+    weight,
+    wing_length,
+    bill_depth,
+    bill_length,
+    tarsus_length,
+    stage.at.capture,
+    geometry, 
+    month,    
+    season  
+  )
+
+# Create line geometries per bird
+bird_tracks <- bird_data %>%
+  group_by(id, month) %>%
+  summarise(geometry = st_cast(st_combine(geometry), "LINESTRING"), .groups = 'drop')
+
+# Count number of unique bird groups
+num_groups <- n_distinct(bird_tracks$id)
+print(paste("Number of unique bird groups:", num_groups))
+
+# Save processed data
+st_write(bird_tracks, "02_preprocessing_export/bird_tracks.geojson", delete_dsn = TRUE)
+```
+
+
+# Preprocess Cluster Analysis (DBScan)
+
+For each bird, we apply DBScan clustering with a minimum points (minPts) parameter set to 15. The eps parameter is dynamically calculated as the mean of the k-nearest neighbor (kNN) distances, ensuring adaptive and data-driven clustering.
+
+```{r}
+# Initialize cluster columns
+bird_data$cluster_season <- NA
+bird_data$cluster_all <- NA
+
+# Set parameters
+minPts <- 15
+unique_ids <- unique(bird_data$id)
+
+for (bird_id in unique_ids) {
+  
+  # --- DBScan for All Seasons ---
+  bird_all_data <- bird_data %>% filter(id == bird_id)
+  coords_all <- st_coordinates(bird_all_data)
+  
+  if (nrow(coords_all) >= minPts) {
+    knn_distances_all <- dbscan::kNNdist(coords_all, k = minPts / 2)
+    eps_all <- mean(knn_distances_all, na.rm = TRUE)
+    db_all <- dbscan(coords_all, eps = eps_all, minPts = minPts)
+    
+    bird_data$cluster_all[bird_data$id == bird_id] <- as.factor(db_all$cluster)
+  }
+  
+  # --- DBScan by Season ---
+  for (season_name in c("Breeding Time", "Harvesting Time", "Winter")) {
+    
+    bird_season_data <- bird_data %>% filter(id == bird_id, season == season_name)
+    coords_season <- st_coordinates(bird_season_data)
+    
+    if (nrow(coords_season) >= minPts) {
+      knn_distances_season <- dbscan::kNNdist(coords_season, k = minPts / 2)
+      eps_season <- mean(knn_distances_season, na.rm = TRUE)
+      db_season <- dbscan(coords_season, eps = eps_season, minPts = minPts)
+      
+      bird_data$cluster_season[bird_data$id == bird_id & bird_data$season == season_name] <- as.factor(db_season$cluster)
+    }
+  }
+}
+
+# Save the processed data with new cluster columns
+st_write(bird_data, "02_preprocessing_export/bird_data.geojson", delete_dsn = TRUE)
+```
+
+# Visualize
+
+To verify the effectiveness of the preprocessing and clustering, we create visualizations that illustrate the clustering results. This step ensures that the DBScan algorithm has accurately identified clusters based on the calculated eps values.
+
+```{r}
+# Visualize Clusters for Specific ID
+target_id <- '.458'
+print(target_id)
+bird_data_filtered <- bird_data[bird_data$id == target_id, ]
+
+if (nrow(bird_data_filtered) > 0) {
+  tmap_mode("view")
+  tm_shape(bird_data_filtered) +
+    tm_dots(col = "cluster_all", palette = "Set1", title = "Cluster ID") +
+    tm_layout(title = paste("Clusters for ID", target_id))
+} else {
+  print("No data available for the specified ID")
+}
+
+```
+
+# Prepare Data for Export of DB-Clusters
+
+## DBScan Algorithm
+
+In this step, we structure the data for export to .geojson files. Each bird's DBScan clusters are saved as individual .geojson files, with each file containing the cluster polygons for that specific bird, facilitating organized data handling and subsequent analysis.
+
+```{r}
+
+
+# Load Data
+bird_data <- st_read("02_preprocessing_export/bird_data.geojson")
+
+# Check and set CRS to WGS84 (EPSG:4326)
+target_crs <- 4326
+if (st_crs(bird_data)$epsg != target_crs) {
+  bird_data <- st_transform(bird_data, crs = target_crs)
+}
+
+# Initialize lists for storing polygons and attributes
+convex_hulls_polygons <- st_sfc(crs = target_crs)
+convex_hulls_ids <- c()
+convex_hulls_clusters <- c()
+convex_hulls_seasons <- c()
+
+# Iterate through each bird
+for (id_name in unique(bird_data$id)) {
+  
+  # Iterate through each season and "All Seasons"
+  for (season_name in c("Breeding Time", "Harvesting Time", "Winter", "All Seasons")) {
+    
+    if (season_name == "All Seasons") {
+      selected_data <- bird_data[bird_data$id == id_name, ]
+      cluster_column <- "cluster_all"
+    } else {
+      selected_data <- bird_data[bird_data$id == id_name & bird_data$season == season_name, ]
+      cluster_column <- "cluster_season"
+    }
+    
+    # Ensure CRS is consistent
+    if (st_crs(selected_data)$epsg != target_crs) {
+      selected_data <- st_transform(selected_data, crs = target_crs)
+    }
+    
+    # Get unique clusters
+    clusters <- unique(na.omit(selected_data[[cluster_column]]))
+    
+    # Skip if no clusters found
+    if (length(clusters) == 0) next
+    
+    # Identify the smallest cluster ID and exclude it
+    min_cluster <- min(clusters)
+    clusters <- clusters[clusters != min_cluster]
+    
+    
+    # Process each cluster
+    for (cluster_id in clusters) {
+      # Filter by cluster
+      cluster_data <- selected_data[selected_data[[cluster_column]] == cluster_id, ]
+      
+      # Ensure sufficient points for convex hull
+      if (nrow(cluster_data) > 3) {
+        hull <- st_convex_hull(st_union(cluster_data))
+        
+        # Store data
+        convex_hulls_polygons <- c(convex_hulls_polygons, hull)
+        convex_hulls_ids <- c(convex_hulls_ids, id_name)
+        convex_hulls_clusters <- c(convex_hulls_clusters, cluster_id)
+        convex_hulls_seasons <- c(convex_hulls_seasons, season_name)
+      }
+    }
+  }
+}
+
+# Create sf object with 3 columns: id, cluster_id, season
+convex_hulls_sf <- st_as_sf(
+  data.frame(
+    id = convex_hulls_ids,
+    cluster_id = convex_hulls_clusters,
+    season = convex_hulls_seasons,
+    geometry = convex_hulls_polygons
+  ),
+  crs = target_crs
+)
+
+# Save as GeoJSON
+st_write(convex_hulls_sf, "02_preprocessing_export/DB_Scan_polygons.geojson", delete_dsn = TRUE)
+
+```
+
+## Calculate Overlap Matrix (all Season)
+
+The overlap matrix is calculated to identify intersecting DBScan clusters between birds. The function calculate_overlap_matrix() uses vectorized operations to efficiently compute the intersections and generate a symmetric matrix, indicating overlap presence with binary values. The resulting matrix is exported as a .csv file for further analysis.
+
+```{r}
+#| warning: false
+
+# Funktion zur Berechnung der Overlap-Matrix
+# Funktion zur effizienten Berechnung der Overlap-Matrix
+calculate_overlap_matrix <- function(DB_Scan_data) {
+  # Extrahiere eindeutige Vogel-IDs
+  bird_ids <- unique(DB_Scan_data$id)
+  n <- length(bird_ids)
+  
+  # Erstelle eine leere Overlap-Matrix
+  overlap_matrix <- matrix(0, nrow = n, ncol = n, dimnames = list(bird_ids, bird_ids))
+  
+  # Nutze Vektorisierung zur Berechnung der Overlaps
+  for (i in 1:(n - 1)) {
+    bird1_data <- DB_Scan_data[DB_Scan_data$id == bird_ids[i], ]
+
+    for (j in (i + 1):n) {
+      bird2_data <- DB_Scan_data[DB_Scan_data$id == bird_ids[j], ]
+
+      # Berechne die Intersection
+      intersection <- st_intersection(bird1_data, bird2_data)
+
+      # Überprüfe, ob eine Intersection vorhanden ist
+      overlap_matrix[i, j] <- ifelse(nrow(intersection) > 0, 1, 0)
+      overlap_matrix[j, i] <- overlap_matrix[i, j]
+    }
+  }
+  return(overlap_matrix)
+}
+
+# Beispielaufruf
+overlap_matrix <- calculate_overlap_matrix(convex_hulls_sf)
+write.csv(overlap_matrix, '02_preprocessing_export/DB_Scan_Matrix.csv')
+
+```
+
+## Function to find relatable birds
+
+The find_related_birds() function identifies birds with overlapping DBScan clusters based on the overlap matrix. By inputting a specific bird ID, the function extracts all bird IDs with intersecting clusters (indicated by a value of 1 in the matrix). This provides a quick way to find potential interactions or shared areas among birds.
+
+```{r}
+find_related_birds <- function(matrix_data, bird_id) {
+  if (!(bird_id %in% rownames(matrix_data))) {
+    stop("Die angegebene Vogel-ID existiert nicht in der Matrix.")
+  }
+
+  # Finde die Zeile, die der bird_id entspricht
+  bird_row <- matrix_data[as.character(bird_id), ]
+
+  # Extrahiere die IDs der ähnlichen Vögel (Spalten mit Wert 1)
+  similar_birds <- colnames(matrix_data)[which(bird_row == 1)]
+
+  return(similar_birds)
+}
+
+find_related_birds(overlap_matrix, "7934")
+```

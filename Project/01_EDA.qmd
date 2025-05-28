@@ -1,0 +1,231 @@
+---
+title: "Data_Exploratory_GEO880"
+author: "Group 6 - Robin Merz"
+format: html
+editor: visual
+execute: 
+  warning: false
+  message: false
+---
+
+## Setup
+
+```{r}
+#| message: false
+#| warning: false
+#clear working space
+  rm(list=ls())
+
+#Import necessary libraries
+  library(readr)
+  library(dplyr)
+  library(stringr)
+  library(tidyverse)
+  library(lubridate)
+  library(scales)
+  library(ggtext)
+  library(ggplot2)
+
+#Import Data
+  Nutcracker <- read_csv("00_data/NuCra_Davos_all_data_2025-02-07_V2.csv")
+
+# remove outliers
+  remove_ids <- c(48325, 15381, 15382, 15383, 45363)
+  Nutcracker <- Nutcracker |> filter(!...1 %in% remove_ids)
+```
+
+## Data structure
+
+```{r}
+#Data structure
+  str(Nutcracker)
+
+#Number and names of variables
+  length(Nutcracker)
+  names(Nutcracker)
+  
+#number of birds
+  unique(Nutcracker$id)
+```
+
+About this chunk:
+
+-   This dataset contains 34 variables, including: Bird_ID, individual metadata, GPS locations and additional information such as whether a datapoint is collected during breeding season or not.
+
+-   The dataset contains 115 individuals
+
+## Number of data points
+
+```{r}
+#total
+  nrow(Nutcracker)
+
+#per individual
+  counts <- table(Nutcracker$id)
+  
+  # extract names
+  ids <- names(counts)
+  values <- as.vector(counts)
+  n <- length(ids)
+  cols <- 3
+  rows <- ceiling(n / cols)
+  
+  #create matrix
+  mat <- matrix(NA, nrow = rows, ncol = cols)
+  for (i in 1:n) {
+    row <- ((i - 1) %% rows) + 1
+    col <- ((i - 1) %/% rows) + 1
+    mat[row, col] <- sprintf("**%s**: %d", ids[i], values[i])
+  }
+  
+  #print
+  apply(mat, 1, function(row) {
+    cat(paste(ifelse(is.na(row), "", row), collapse = "  |  "), "\n")
+  })
+
+#per year
+  Nutcracker |>
+    count(year) |>
+    ggplot(aes(x = year, y = n)) +
+    geom_col(fill = "orange") +
+    labs(title = "Number of datapoints per year", x = "year", y = "counts") +
+    theme_minimal()
+
+#per month
+  Nutcracker |>
+    count(month) |>
+    ggplot(aes(x = month, y = n)) +
+    geom_col(fill = "orange") +
+    labs(title = "Number of datapoints per month", x = "month", y = "counts") +
+    theme_minimal()
+  
+#per month and year
+  Nutcracker |>
+    mutate(month = factor(month, levels = sprintf("%02d", 1:12))) |>
+    count(year, month) |>
+    ggplot(aes(x = month, y = n, fill = as.factor(year))) +
+    geom_col(position = "dodge") +
+    labs(title = "Number datapoints per year and month", x = "month", y = "counts", fill = "Year") +
+    theme_minimal()
+```
+
+About this chunk:
+
+-   In total 49758 datapoints
+
+-   Highly variable number of datapoints per individual
+
+-   Highly variable number of datapoints per year & month
+
+## Age classes and time spans
+
+```{r}
+# Ageclasses
+zeitspanne <- Nutcracker |>
+  group_by(id) |>
+  summarize(
+    start = as.Date(min(datetime)),
+    ende = as.Date(max(datetime)),
+    alter = first(stage.at.capture)  # Alter pro Vogel
+  ) |>
+  filter(year(start) >= 2017) |>
+  mutate(alter = case_when(
+    alter %in% c("A", "adult") ~ "adult",
+    alter %in% c("J", "juvenile", "sub") ~ "juvenile",
+    TRUE ~ "unbekannt"
+  )) |>
+  arrange(start)
+
+# Plot
+ggplot(zeitspanne, aes(x = alter, y = n, fill = alter)) +
+  geom_col(width = 0.6) +
+  scale_fill_manual(values = c("juvenile" = "tomato", "adult" = "steelblue", "unbekannt" = "gray")) +
+  labs(
+    title = "Number of datapoints from juvenile and adult birds",
+    x = "Age",
+    y = "Number of datapoints",
+    fill = "Age class"
+  ) +
+  theme_minimal()
+
+# Plot with age and timespan
+ggplot(zeitspanne, aes(y = reorder(id, start), color = alter)) +
+  geom_linerange(aes(xmin = start, xmax = ende), linewidth = 1.2) +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  scale_color_manual(values = c("juvenile" = "tomato", "adult" = "steelblue", "unbekannt" = "gray")) +
+  labs(title = "Time span of each bird", x = "Year", y = "Bird ID", color = "Age class") +
+  theme_minimal()
+
+
+```
+
+About this chunk:
+
+-   more datapoints of adult birds than from juveniles
+
+-   large differences in time span between birds, some over multiple years, some over a few days
+
+## GPS-Shedules
+
+```{r}
+# Filter years, hours and minutes
+Nutcracker |>
+  filter(year >= 2017) |>
+  mutate(hour = as.numeric(format(datetime, "%H")),  
+         minute = as.numeric(format(datetime, "%M")),  
+         year = as.numeric(format(datetime, "%Y")),  
+         month = as.numeric(format(datetime, "%m"))) -> Nutcracker_filtered
+
+# Loop for plot creation
+for (current_year in unique(Nutcracker_filtered$year)) {
+  
+  # Filter data by year
+  data_year <- Nutcracker_filtered |>
+    filter(year == current_year)
+  
+  # create plots
+  plot <- ggplot(data_year, aes(x = hour + minute / 60)) +  
+    geom_histogram(binwidth = 1, fill = "skyblue", color = "black", alpha = 0.7) + 
+    facet_wrap(~ month, ncol = 3, scales = "free_y") +  # Facet by month
+    labs(title = paste("Daytime distribution of GPS-Datapoints", current_year), 
+         x = "Daytime (hour)", y = "number of datapoints") +
+    theme_minimal() +
+    scale_x_continuous(breaks = seq(0, 24, 5), limits = c(0, 24)) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # show plot
+  print(plot)
+}
+
+#differences in GPS-Shedules
+id_group <- c("5450", "6459", "7944")
+
+# filter by id
+p <- Nutcracker |>
+  filter(id %in% id_group) |>
+  arrange(id, datetime) |>
+  group_by(id) |>
+  mutate(time_diff = as.numeric(difftime(datetime, lag(datetime), units = "mins"))) |>
+  filter(!is.na(time_diff), time_diff < 180) |>
+  ggplot(aes(x = time_diff)) +
+  geom_histogram(binwidth = 5, fill = "tomato", color = "black") +
+  facet_wrap(~ id, scales = "free_y") +
+  labs(
+    title = paste("Time between two datapoints for ID's:", paste(id_group, collapse = ", ")),
+    x = "Time (minutes)", y = "Frecuency"
+  ) +
+  theme_minimal()
+
+# show Plot
+print(p)
+```
+
+About this chunk:
+
+-   different shedules between years and months
+
+-   different timesteps between individuals
+
+## Conclusion:
+
+The Nutcracker consists of 49758 GPS-locations collected by 115 individuals over multiple years. Each datapoint additionally holds information about the bird, body measurements and some additional information (34 variables). Due to the nature of the data and different research focuses in previous years, the number of datapoints per individual, season and year are highly variable. Additionally, due to battery restrictions, the timesteps between two datapoints, as well as the shedules, based on which the datapoints were collected, are also variable. This implications have to be kept in mind, when working with the data.

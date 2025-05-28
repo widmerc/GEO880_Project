@@ -23,6 +23,18 @@ a:hover {
 
 }
 
+
+a2 {
+  color: white;
+  transition: all 2s
+
+}
+a2:hover {
+  color: var(--accent_color);
+  transition: 0.2s;
+
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;

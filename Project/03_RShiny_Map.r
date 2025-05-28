@@ -1,0 +1,1320 @@
+# author: "Group6 - Claude Widmer
+
+library(shiny)
+library(sf)
+library(leaflet)
+library(geojsonsf)
+library(leaflet.extras)
+library(ggplot2)
+library(shinythemes)
+library(dplyr)
+library(tidyr)
+
+
+ui <- fluidPage(
+  theme = shinytheme("yeti"),
+  titlePanel("Bird Tracking Dashboard"),
+  
+  tags$div(
+    style = "position: absolute; top: 10px; right: 10px;",
+    actionButton("help_button", "?", style = "font-size: 26px; width: 50px; height: 50px; border-radius: 10%; font-weight: bold;")
+  ),
+  
+  tabsetPanel(
+    
+    # Single Bird View Tab
+    tabPanel("Single Bird View",
+             sidebarLayout(
+               sidebarPanel(
+                 width = 5,
+                 hr(),
+                 
+                 # Bird ID Selector with Buttons
+                 selectInput("bird_id", "Select Bird ID:", choices = NULL),
+                 fluidRow(
+                   column(6, actionButton("prev_bird", "Previous", style = "width: 100%;")),
+                   column(6, actionButton("next_bird", "Next", style = "width: 100%;"))
+                 ),
+                 checkboxInput("filter_seasons", "Only Birds with Data from Multiple Seasons", value = FALSE),
+                 hr(),
+                 
+                 # Season Selection
+                 uiOutput("season_toggle_ui_single"),
+                 hr(),
+                 
+                 tabsetPanel(
+                   tabPanel("Bird Information",
+                            fluidPage(
+                              h3("Selected Bird Information"),
+                              htmlOutput("bird_info_single")
+                            )
+                   ),
+                   tabPanel("Data Season Distribution",
+                            fluidPage(
+                              h3("Seasonal Distribution of Data Points"),
+                              plotOutput("season_pie_chart", height = "300px")
+                            )
+                   ),
+                   tabPanel("Home Range",
+                            fluidPage(
+                              h3("Home Range Size Comparison by Season"),
+                              plotOutput("home_range_plot", height = "300px")
+                            )
+                   ),
+                   tabPanel("DBScan Clusters",
+                            fluidPage(
+                              h3("DBScan Clusters - Number and Size Overview"),
+                              plotOutput("dbscan_clusters_plot", height = "300px")
+                            )
+                   )
+                 )
+               ),
+               
+               mainPanel(
+                 width = 7,
+                 leafletOutput("map", height = "80vh")
+               )
+             )
+    ),
+    
+    # Multiple Bird Comparison Tab
+      tabPanel("Multiple Bird Comparison",
+               sidebarLayout(
+                 sidebarPanel(
+                   width = 6,
+                   # Bird 1 ID Selector with Buttons
+                   selectInput("bird_id_1", "Select Bird 1 ID:", choices = NULL),
+                   fluidRow(
+                     column(6, actionButton("prev_bird_1", "Previous", style = "width: 100%;")),
+                     column(6, actionButton("next_bird_1", "Next", style = "width: 100%;"))
+                   ),
+                   # Bird 2 ID Selector with Buttons
+                   selectInput("bird_id_2", "Select Bird 2 ID:", choices = NULL),
+                   fluidRow(
+                     column(6, actionButton("prev_bird_2", "Previous", style = "width: 100%;")),
+                     column(6, actionButton("next_bird_2", "Next", style = "width: 100%;"))
+                   ),
+                   hr(),
+                   
+                   # Season Selection and Analysis Options
+                   fluidRow(
+                     column(6, 
+                            radioButtons("analysis_type", "Analysis Type:", 
+                                         choices = list("Hotspot Analysis" = "hotspot",
+                                                        "Home Range Analysis" = "home_range",
+                                                        "Cluster Analysis" = "cluster"),
+                                         selected = "hotspot"),
+                     ),
+                     column(6, uiOutput("season_toggle_ui_multiple"))
+                   ),
+                   hr(),
+                   tabsetPanel(
+                     id = "comparison_tabs",
+                     tabPanel("Bird Information Comparison",
+                              fluidPage(
+                                h3("Comparison of Bird Information"),
+                                htmlOutput("bird_info_multiple")
+                              )
+                     ),
+                     
+                     tabPanel("Data Season Distribution",
+                              fluidPage(
+                                h3("Seasonal Distribution of Data Points"),
+                                p(textOutput("description_season_distribution")),
+                                plotOutput("season_overview_multiple", height = "300px")
+                              )
+                     ),
+                     
+                     tabPanel("Home Range Comparison",
+                              fluidPage(
+                                h3("Home Range Intersection"),
+                                p(textOutput("description_home_range")),
+                                plotOutput("analysis_plot", height = "300px")
+                              )
+                     ),
+                     
+                     tabPanel("DBScan Clusters Comparison",
+                              fluidPage(
+                                h3("DBScan Clusters - Comparison of Birds"),
+                                p(textOutput("description_dbscan")),
+                                plotOutput("dbscan_clusters_comparison_plot", height = "300px")
+                              )
+                     )
+                   )
+                 ),
+                 mainPanel(
+                   width = 6,
+                   leafletOutput("compare_map", height = "80vh")
+                 )
+               )
+      )
+  )
+)
+
+
+
+
+
+
+server <- function(input, output, session) {
+  
+  # --- Hilfe Funktion oben Rechts ---
+  
+  observeEvent(input$help_button, {
+    showModal(modalDialog(
+      title = "Help & Instructions",
+      HTML("
+      <h4>Bird Tracking Dashboard Help</h4>
+      <p>This dashboard provides comprehensive visualization and analysis of bird tracking data to facilitate ecological and behavioral studies.</p>
+      <ul>
+        <li><b>Single Bird View:</b> 
+        Select a bird ID to view detailed tracking data for a single bird. This includes spatial data, temporal distribution, and a comprehensive summary of key metrics.</li>
+        
+        <li><b>Data Season Distribution:</b> 
+        Visualizes the distribution of collected data points across different seasons. This helps in identifying seasonal movement patterns and habitat preferences.</li>
+        
+        <li><b>Home Range:</b> 
+        The Home Range is the area within which a bird is most frequently located. It is calculated to encompass 95% of all data points, effectively excluding outliers. This metric is crucial for understanding spatial behavior, territory size, and habitat utilization. In ecological studies, this is a standard method to quantify space use and resource allocation.</li>
+        
+        <li><b>DBScan Clusters:</b> 
+        DBScan (Density-Based Spatial Clustering of Applications with Noise) is a clustering algorithm that identifies clusters based on data point density. The method automatically determines the epsilon (eps) parameter, which defines the neighborhood radius for point clustering. This technique is widely used in GIS (Geographic Information Systems) to detect areas of high activity or resting spots, helping to identify significant movement patterns and behavioral hotspots.</li>
+        
+        <li><b>Map View:</b> 
+        Displays the bird's tracking path, home range, and identified DBScan clusters on an interactive map. The map provides spatial context and helps in visualizing movement patterns and spatial distribution effectively.</li>
+        
+        <li><b>Next/Previous:</b> 
+        Easily navigate through different bird IDs to compare tracking data across multiple individuals.</li>
+        
+        <li><b>Season Filter:</b> 
+        Toggle between different seasons to focus on season-specific data and assess potential seasonal variations in movement and habitat usage.</li>
+      </ul>
+      <p>If you encounter any issues or require further assistance, please contact Robin or Claude for support.</p>
+    "),
+      easyClose = TRUE,
+      footer = modalButton("Close")
+    ))
+  })
+  
+  
+  
+  # --- Allgemeine Funktionen: ---
+  
+  # Calculate 95% MCP
+  calculate_95_mcp <- function(points_sf) {
+    if (nrow(points_sf) < 3) return(NULL)
+    
+    centroid <- st_centroid(st_union(points_sf))
+    points_sf <- points_sf %>% mutate(distance = st_distance(geometry, centroid))
+    cutoff <- quantile(points_sf$distance, 0.95)
+    points_95 <- points_sf %>% filter(distance <= cutoff)
+    
+    if (nrow(points_95) > 2) {
+      hr95 <- st_convex_hull(st_union(points_95))
+      return(hr95)
+    } else {
+      return(NULL)
+    }
+  }
+  
+  # Calculate Home Range Area
+  calculate_home_range <- function(points_sf) {
+    if (nrow(points_sf) < 3) return(NA)
+    hr <- st_convex_hull(st_union(points_sf))
+    return(as.numeric(st_area(hr) / 10000))  # Area in hectares
+  }
+  
+  
+  # --- Load Data ---
+  
+  showNotification("Loading data, please wait...", type = "message", duration = 10)
+  
+  bird_tracks <- st_read("02_preprocessing_export/bird_tracks.geojson")
+  bird_data <- st_read("02_preprocessing_export/bird_data.geojson")
+  DB_Scan_data <- st_read("02_preprocessing_export/DB_Scan_polygons.geojson")
+  DB_Scan_matrix <- read.csv("02_preprocessing_export/DB_Scan_Matrix.csv", row.names = 1)
+  
+  # All bird IDs
+  all_bird_ids <- unique(bird_tracks$id)
+  bird_index <- reactiveVal(1)
+  
+  # Reactive value to store filtered bird IDs
+  filtered_bird_ids <- reactiveVal(all_bird_ids)
+  
+  # Initial update of bird_id choices
+  updateSelectInput(session, "bird_id", choices = all_bird_ids)
+  updateSelectInput(session, "bird_id_1", choices = all_bird_ids)
+  updateSelectInput(session, "bird_id_2", choices = all_bird_ids)
+  
+  # --- Vögel ID's suchen und auswählen, welche mehrere Saisons haben (Single Bird View) ---
+  
+  get_multi_season_birds <- function() {
+    multi_season_ids <- all_bird_ids[sapply(all_bird_ids, function(bird_id) {
+      points <- bird_data[bird_data$id == bird_id, ]
+      
+      # Identify seasons
+      seasons <- unique(
+        case_when(
+          points$month >= 2 & points$month <= 6 ~ "Breeding Time",
+          points$month >= 7 & points$month <= 10 ~ "Harvesting Time",
+          points$month %in% c(11, 12, 1) ~ "Winter",
+          TRUE ~ NA_character_
+        )
+      )
+      
+      # Check for multiple seasons
+      length(na.omit(seasons)) > 1
+    })]
+    
+    return(multi_season_ids)
+  }
+  
+  observeEvent(input$filter_seasons, {
+    if (input$filter_seasons) {
+      filtered_ids <- get_multi_season_birds()
+    } else {
+      filtered_ids <- all_bird_ids
+    }
+    bird_index(1)
+    filtered_bird_ids(filtered_ids)
+    updateSelectInput(session, "bird_id", choices = filtered_ids, selected = filtered_ids[1])
+  })
+  
+  
+  # --- Next/Previous Button Logic (Single Bird View) ---
+  
+  update_bird_selection <- function(direction) {
+    ids <- filtered_bird_ids()
+    idx <- bird_index()
+    
+    new_index <- switch(
+      direction,
+      "next" = ifelse(idx < length(ids), idx + 1, 1),
+      "prev" = ifelse(idx > 1, idx - 1, length(ids))
+    )
+    
+    bird_index(new_index)
+    updateSelectInput(session, "bird_id", selected = ids[new_index])
+  }
+  
+  observeEvent(input$next_bird, { #next
+    update_bird_selection("next")
+  })
+  
+  observeEvent(input$prev_bird, { #back
+    update_bird_selection("prev")
+  })
+  
+  observeEvent(input$bird_id, { #manual
+    ids <- filtered_bird_ids()
+    index <- which(ids == input$bird_id)
+    if (length(index) > 0) bird_index(index)
+  })
+  
+  
+  # --- Next/Previous Button Logik (Multiple Bird View) ---
+  
+  bird_index_1 <- reactiveVal(1)
+  bird_index_2 <- reactiveVal(1)
+  
+  update_bird_selection_compare <- function(direction, bird_index, bird_id_input, bird_choices) {
+    idx <- bird_index()
+    new_index <- switch(
+      direction,
+      "next" = ifelse(idx < length(bird_choices), idx + 1, 1),
+      "prev" = ifelse(idx > 1, idx - 1, length(bird_choices))
+    )
+    bird_index(new_index)
+    updateSelectInput(session, bird_id_input, selected = bird_choices[new_index])
+  }
+  
+  observeEvent(input$next_bird_1, {
+    remaining_choices <- setdiff(all_bird_ids, input$bird_id_2)
+    update_bird_selection_compare("next", bird_index_1, "bird_id_1", remaining_choices)
+  })
+  
+  observeEvent(input$prev_bird_1, {
+    remaining_choices <- setdiff(all_bird_ids, input$bird_id_2)
+    update_bird_selection_compare("prev", bird_index_1, "bird_id_1", remaining_choices)
+  })
+  
+  observeEvent(input$next_bird_2, {
+    remaining_choices <- setdiff(all_bird_ids, input$bird_id_1)
+    update_bird_selection_compare("next", bird_index_2, "bird_id_2", remaining_choices)
+  })
+  
+  observeEvent(input$prev_bird_2, {
+    remaining_choices <- setdiff(all_bird_ids, input$bird_id_1)
+    update_bird_selection_compare("prev", bird_index_2, "bird_id_2", remaining_choices)
+  })
+  
+  # --- Logik nicht 2 mal die gleichen Vögel auswählen (Multiple Bird View) ---
+  
+  updateSelectInput(session, "bird_id_1", choices = all_bird_ids, selected = all_bird_ids[1])
+  updateSelectInput(session, "bird_id_2", choices = setdiff(all_bird_ids, all_bird_ids[1]), selected = all_bird_ids[2])
+  
+  observeEvent(input$bird_id_1, ignoreInit = TRUE, {
+    remaining_choices <- setdiff(all_bird_ids, input$bird_id_1)
+    updateSelectInput(session, "bird_id_2", choices = remaining_choices, selected = ifelse(input$bird_id_2 %in% remaining_choices, input$bird_id_2, remaining_choices[1]))
+  })
+  
+  observeEvent(input$bird_id_2, ignoreInit = TRUE, {
+    remaining_choices <- setdiff(all_bird_ids, input$bird_id_2)
+    updateSelectInput(session, "bird_id_1", choices = remaining_choices, selected = ifelse(input$bird_id_1 %in% remaining_choices, input$bird_id_1, remaining_choices[1]))
+  })
+  
+  
+  # ----- UI -----
+  
+  # --- Dynamische Beschreibung ---
+  
+  season_description <- reactive({
+    season <- ifelse(is.null(input$season_toggle_compare), "full_season", input$season_toggle_compare)
+    
+    # Mapping for season descriptions
+    season_mapping <- list(
+      "full_season" = "based on the entire dataset.",
+      "breeding_season" = "focused on the breeding season (February - June).",
+      "harvesting_season" = "focused on the harvesting season (July - October).",
+      "winter_season" = "focused on the winter months (November - January)."
+    )
+    
+    return(season_mapping[[season]])
+  })
+  
+  # Description for Data Season Distribution
+  output$description_season_distribution <- renderText({
+    "The data distribution is always based on the entire dataset."
+  })
+  
+  # Description for Home Range Comparison
+  output$description_home_range <- renderText({
+    paste("Home Range analysis", season_description())
+  })
+  
+  # Description for DBScan Clusters Comparison
+  output$description_dbscan <- renderText({
+    paste("DBScan cluster analysis", season_description())
+  })
+  
+  # --- Dynamische Anpassung der Lasche ---
+  
+  observeEvent(input$analysis_type, {
+    if (input$analysis_type == "home_range") {
+      updateTabsetPanel(session, inputId = "comparison_tabs", selected = "Home Range Comparison")
+    } else if (input$analysis_type == "cluster") {
+      updateTabsetPanel(session, inputId = "comparison_tabs", selected = "DBScan Clusters Comparison")
+    }
+    else if (input$analysis_type == "hotspot") {
+      updateTabsetPanel(session, inputId = "comparison_tabs", selected = "Bird Information Comparison")
+    }
+  })
+  
+  
+  # --- Schauen welche Saisons als Button dargestellt werden (Single Bird View) ---
+  
+  output$season_toggle_ui_single <- renderUI({
+    req(input$bird_id)
+    
+    # Daten für den ausgewählten Vogel filtern
+    bird_months <- bird_data[bird_data$id == input$bird_id, "month"]
+    
+    # Extrahiere die Spalte als Vektor und konvertiere zu numerisch
+    bird_months <- unlist(bird_months)
+    bird_months <- as.numeric(bird_months)
+    
+    # Nur gültige Monate behalten
+    bird_months <- bird_months[!is.na(bird_months)]
+    
+    season_choices <- list("Full Dataset" = "full_season")
+    
+    if (any(bird_months >= 2 & bird_months <= 6)) {
+      season_choices[["Breeding Time"]] <- "breeding_season"
+    }
+    if (any(bird_months >= 7 & bird_months <= 10)) {
+      season_choices[["Harvesting Time"]] <- "harvesting_season"
+    }
+    if (any(bird_months %in% c(11, 12, 1))) {
+      season_choices[["Winter"]] <- "winter_season"
+    }
+    
+    radioButtons("season_toggle", "Available Seasons:", choices = season_choices)
+  })
+  
+
+  # --- Schauen welche Saisons als Button dargestellt werden (Multiple Bird View) ---
+  
+  output$season_toggle_ui_multiple <- renderUI({
+    req(input$bird_id_1, input$bird_id_2)
+    
+    bird1_data <- bird_data[bird_data$id == input$bird_id_1, ]
+    bird2_data <- bird_data[bird_data$id == input$bird_id_2, ]
+    
+    # Funktion, um gültige Saisons zu extrahieren
+    get_seasons <- function(data) {
+      unique(
+        case_when(
+          data$month >= 2 & data$month <= 6 ~ "Breeding Time",
+          data$month >= 7 & data$month <= 10 ~ "Harvesting Time",
+          data$month %in% c(11, 12, 1) ~ "Winter",
+          TRUE ~ NA_character_
+        )
+      )
+    }
+    
+    seasons_1 <- get_seasons(bird1_data)
+    seasons_2 <- get_seasons(bird2_data)
+    
+    # Gemeinsame Saisons identifizieren
+    available_seasons <- intersect(seasons_1, seasons_2)
+    
+    # Standard-Dataset immer verfügbar
+    season_choices <- list("Full Dataset" = "full_season")
+    
+    # Saisons dynamisch hinzufügen
+    if ("Breeding Time" %in% available_seasons) {
+      season_choices[["Breeding Time"]] <- "breeding_season"
+    }
+    if ("Harvesting Time" %in% available_seasons) {
+      season_choices[["Harvesting Time"]] <- "harvesting_season"
+    }
+    if ("Winter" %in% available_seasons) {
+      season_choices[["Winter"]] <- "winter_season"
+    }
+    
+    radioButtons("season_toggle_compare", "Available Seasons:", choices = season_choices, selected = "full_season")
+  })
+  
+  #--- Bird Info ---
+  
+  find_related_birds <- function(matrix_data, bird_id) {
+    if (!(bird_id %in% rownames(matrix_data))) {
+      return("None")
+    }
+    
+    # Finde die Zeile, die der bird_id entspricht
+    bird_row <- matrix_data[as.character(bird_id), ]
+    
+    # Extrahiere die IDs der ähnlichen Vögel (Spalten mit Wert 1)
+    similar_birds <- colnames(matrix_data)[which(bird_row == 1)]
+    
+    # Formatierung der Ausgabe
+    similar_birds <- sub("^X", "", similar_birds)
+    
+    return(similar_birds)
+  }
+  
+  output$bird_info_multiple <- renderUI({
+    req(input$bird_id_1, input$bird_id_2)
+    
+    # Generiere die Tabelle mit Indexspalte und zwei Datenspalten
+    create_combined_table(
+      generate_index_column(),
+      generate_column_data(input$bird_id_1),
+      generate_column_data(input$bird_id_2)
+    )
+  })
+  
+  output$bird_info_single <- renderUI({
+    req(input$bird_id)
+    create_combined_table(
+      generate_index_column(),
+      generate_column_data(input$bird_id)
+    )
+  })
+  
+  create_combined_table <- function(index_col, ...) {
+    columns <- list(...)
+    num_rows <- length(index_col)
+    num_cols <- length(columns) + 1  # +1 für die Indexspalte
+    column_widths <- paste0(100 / num_cols, "%")
+    
+    
+    table_html <- "<table style='width: 100%; border-collapse: collapse;'>"
+    for (i in 1:num_rows) {
+      table_html <- paste0(table_html, "<tr>")
+      
+      table_html <- paste0(
+        table_html, 
+        "<td style='width: ", column_widths, "; padding: 4px; border-bottom: 1px solid #ddd; font-weight: bold;'>", 
+        index_col[i], 
+        "</td>"
+      )
+      
+      for (col in columns) {
+        table_html <- paste0(
+          table_html, 
+          "<td style='width: ", column_widths, "; padding: 4px; border-bottom: 1px solid #ddd;'>", 
+          col[i], 
+          "</td>"
+        )
+      }
+      
+      table_html <- paste0(table_html, "</tr>")
+    }
+    
+    table_html <- paste0(table_html, "</table>")
+    return(HTML(table_html))
+  }
+  
+  generate_index_column <- function() {
+    return(c(
+      "Bird ID",
+      "Number of Points", 
+      "Date Range", 
+      "Median Time Diff.", 
+      "Altitude Range (m)", 
+      "Median Step Length (m)", 
+      "Weight (g)", 
+      "Wing Length (cm)", 
+      "Bill Depth (cm)", 
+      "Bill Length (cm)", 
+      "Tarsus Length (cm)", 
+      "Stage at Capture", 
+      "Relatable Birds (Home Range)"
+    ))
+  }
+  
+  generate_column_data <- function(bird_id) {
+    info <- get_bird_info(bird_id)
+    index_keys <- generate_index_column()
+    return(sapply(index_keys, function(key) info[[key]]))
+  }
+  
+  get_bird_info <- function(bird_id) {
+    selected_points <- bird_data[bird_data$id == bird_id, ]
+    related_birds <- find_related_birds(DB_Scan_matrix, bird_id)
+    relatable_birds <- paste(head(related_birds, 10), collapse = ", ")
+    
+    info_list <- list(
+      "Number of Points" = nrow(selected_points),
+      "Date Range" = paste(
+        format(min(selected_points$datetime, na.rm = TRUE), "%Y-%m-%d"),
+        " - ",
+        format(max(selected_points$datetime, na.rm = TRUE), "%Y-%m-%d")
+      ),
+      "Median Time Diff." = -1 * round(median(selected_points$timediff, na.rm = TRUE), 5),
+      "Altitude Range (m)" = paste(
+        min(selected_points$altitude, na.rm = TRUE),
+        " - ",
+        max(selected_points$altitude, na.rm = TRUE)
+      ),
+      "Bird ID" = unique(selected_points$id),
+      "Median Step Length (m)" = round(median(selected_points$steplength, na.rm = TRUE), 2),
+      "Weight (g)" = unique(selected_points$weight),
+      "Wing Length (cm)" = unique(selected_points$wing_length),
+      "Bill Depth (cm)" = unique(selected_points$bill_depth),
+      "Bill Length (cm)" = unique(selected_points$bill_length),
+      "Tarsus Length (cm)" = unique(selected_points$tarsus_length),
+      "Stage at Capture" = unique(selected_points$stage.at.capture),
+      "Relatable Birds (Home Range)" = relatable_birds
+    )
+    
+    return(info_list)
+  }
+  
+
+  # Pie Chart of Seasonal Distribution
+  output$season_pie_chart <- renderPlot({
+    req(input$bird_id)
+    
+    # Filter data for the selected bird
+    selected_points <- bird_data[bird_data$id == input$bird_id, ]
+    
+    # Check if data is available
+    if (nrow(selected_points) == 0) {
+      return(NULL)
+    }
+    
+    # Assign season in one pass using dplyr
+    selected_points <- selected_points %>%
+      mutate(season = case_when(
+        month >= 2 & month <= 6 ~ "Breeding Time",
+        month >= 7 & month <= 10 ~ "Harvesting Time",
+        month %in% c(11, 12, 1) ~ "Winter",
+        TRUE ~ "Unknown"
+      ))
+    
+    # Aggregate counts by season
+    season_data <- selected_points %>%
+      group_by(season) %>%
+      summarise(count = n(), .groups = "drop") %>%
+      filter(season != "Unknown") %>%
+      arrange(desc(season)) %>%
+      mutate(
+        ypos = cumsum(count) - 0.5 * count
+      )
+    
+    # Plot the pie chart
+    ggplot(season_data, aes(x = "", y = count, fill = season)) +
+      geom_bar(stat = "identity", width = 1) +
+      coord_polar(theta = "y") +
+      geom_text(aes(label = count, y = ypos), color = "black", size = 5) +
+      theme_minimal() +
+      theme(
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        panel.grid = element_blank(),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 12)
+      ) +
+      labs(fill = "Season") +
+      scale_fill_brewer(palette = "Set3")
+  })
+  
+  # DBScan Clusters - Number and Size Overview Plot in Hektar (Dynamisch wie Home Range Plot)
+  output$dbscan_clusters_plot <- renderPlot({
+    req(input$bird_id, input$season_toggle)
+    
+    # Daten für den ausgewählten Vogel
+    selected_dbscan <- DB_Scan_data[DB_Scan_data$id == input$bird_id, ]
+    
+    # Überprüfen, ob Daten vorhanden sind
+    if (nrow(selected_dbscan) == 0) {
+      plot.new()
+      text(0.5, 0.5, "No DBScan data available", cex = 1.5)
+      return()
+    }
+    
+    # Definiere die Saisons und deren Filter
+    season_mapping <- list(
+      "full_season" = "All Seasons",
+      "breeding_season" = "Breeding Time",
+      "harvesting_season" = "Harvesting Time",
+      "winter_season" = "Winter"
+    )
+    
+    # Ausgewählte Saison und zugehöriger Label
+    selected_season_label <- season_mapping[[input$season_toggle]]
+    
+    # Clustergrößen in Hektar für jede Saison berechnen
+    cluster_sizes <- selected_dbscan %>%
+      mutate(season_label = case_when(
+        season == "Breeding Time" ~ "Breeding Time",
+        season == "Harvesting Time" ~ "Harvesting Time",
+        season == "Winter" ~ "Winter",
+        TRUE ~ "All Seasons"
+      )) %>%
+      group_by(season_label) %>%
+      summarise(total_area = sum(st_area(geometry)) / 10000, .groups = "drop")
+    
+    # Sicherstellen, dass alle Saisons vorhanden sind (mit 0 füllen, falls leer)
+    all_seasons <- c("All Seasons", "Breeding Time", "Harvesting Time", "Winter")
+    cluster_sizes <- merge(
+      data.frame(season_label = all_seasons), 
+      cluster_sizes, 
+      by = "season_label", 
+      all.x = TRUE
+    )
+    
+    # Fehlende Werte mit 0 füllen und als numerischer Vektor konvertieren
+    cluster_sizes$total_area <- as.numeric(ifelse(is.na(cluster_sizes$total_area), 0, cluster_sizes$total_area))
+    
+    # Farben aus Set3
+    colors <- RColorBrewer::brewer.pal(n = 4, name = "Set3")
+    
+    # Matplotlib Plotting
+    par(mfrow = c(1, 1), mar = c(5, 5, 4, 1), cex.main = 1.2, cex.lab = 1.1)
+    
+    # Barchart - Clustergrößenvergleich in Hektar
+    barplot(
+      height = as.numeric(cluster_sizes$total_area),   # Sicherstellen, dass es ein numerischer Vektor ist
+      names.arg = cluster_sizes$season_label,
+      col = colors,
+      xlab = "Season",
+      ylab = "Total Cluster Size (ha)",
+      las = 2,
+      cex.names = 0.8
+    )
+  })
+    
+  
+  output$home_range_plot <- renderPlot({
+    req(input$bird_id)
+    
+    # Data for selected bird
+    selected_points <- bird_data[bird_data$id == input$bird_id, ]
+    if (nrow(selected_points) < 3) return(NULL)
+    
+    # Filter by season
+    breeding_points <- selected_points[selected_points$month >= 2 & selected_points$month <= 6, ]
+    harvesting_points <- selected_points[selected_points$month >= 7 & selected_points$month <= 10, ]
+    winter_points <- selected_points[selected_points$month %in% c(11, 12, 1), ]
+    
+    # Calculate Home Range Sizes
+    hr_sizes <- data.frame(
+      Season = c("Breeding Time", "Harvesting Time", "Winter"),
+      Area = c(
+        calculate_home_range(breeding_points),
+        calculate_home_range(harvesting_points),
+        calculate_home_range(winter_points)
+      )
+    )
+    
+    # Remove NA values for empty seasons
+    hr_sizes <- hr_sizes[!is.na(hr_sizes$Area), ]
+    
+    # Plot
+    ggplot(hr_sizes, aes(x = Season, y = Area, fill = Season)) +
+      geom_bar(stat = "identity", width = 0.6) +
+      scale_fill_brewer(palette = "Set3") +
+      labs(title = "Home Range Size Comparison by Season", y = "Area (ha)", x = "") +
+      theme_minimal() +
+      theme(
+        legend.position = "none",
+        text = element_text(size = 14)
+      )
+  })
+  
+  
+  
+  # Initialisiere die Karte nur einmal
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      setView(lng = 9.581463104990185, lat = 46.81053552453712, zoom = 12) %>%
+      addTiles(group = "OpenStreetMap") %>%
+      addProviderTiles("Esri.WorldImagery", group = "Esri Satellite") %>%
+      addScaleBar(position = "bottomleft")
+  })
+  
+  observe({
+    req(input$bird_id)
+    
+    # Fallback-Wert für `season_toggle`, falls nicht gesetzt
+    season_toggle <- ifelse(is.null(input$season_toggle), "full_season", input$season_toggle)
+    
+    # Daten filtern
+    selected_data <- bird_tracks[bird_tracks$id == input$bird_id, ]
+    selected_points <- bird_data[bird_data$id == input$bird_id, ]
+    selected_dbscan <- DB_Scan_data[DB_Scan_data$id == input$bird_id, ]
+
+    bbox <- st_bbox(selected_points)
+    bbox <- as.list(bbox)
+
+    season_title <- switch(season_toggle,
+                           "breeding_season" = "Breeding Season",
+                           "harvesting_season" = "Harvesting Season",
+                           "winter_season" = "Winter Season",
+                           "full_season" = "Full Dataset")
+    
+    # Season Filter
+    if (season_toggle == "breeding_season") {
+      selected_points <- selected_points[selected_points$month >= 2 & selected_points$month <= 6, ]
+      selected_data <- selected_data[selected_data$month >= 2 & selected_data$month <= 6, ]
+      selected_dbscan <- DB_Scan_data[DB_Scan_data$id == input$bird_id & DB_Scan_data$season == "Breeding Time", ]
+      
+    } else if (season_toggle == "harvesting_season") {
+      selected_data <- selected_data[selected_data$month >= 7 & selected_data$month <= 10, ]
+      selected_points <- selected_points[selected_points$month >= 7 & selected_points$month <= 10, ]
+      selected_dbscan <- DB_Scan_data[DB_Scan_data$id == input$bird_id & DB_Scan_data$season == "Harvesting Time", ]
+      
+    } else if (season_toggle == "winter_season") {
+      selected_data <- selected_data[selected_data$month %in% c(11, 12, 1), ]
+      selected_points <- selected_points[selected_points$month %in% c(11, 12, 1), ]
+      selected_dbscan <- DB_Scan_data[DB_Scan_data$id == input$bird_id & DB_Scan_data$season == "Winter", ]
+      
+    } else {
+      selected_dbscan <- DB_Scan_data[DB_Scan_data$id == input$bird_id & DB_Scan_data$season == "All Seasons", ]
+    }
+    
+    # Home Range berechnen
+    mbp <- calculate_95_mcp(selected_points)
+    
+    # Leaflet Proxy verwenden, um die Karte zu aktualisieren
+    legend_colors <- c("#FF5733", "#1E90FF")
+    legend_labels <- c("Points", "Track")
+    
+    
+    map <- leafletProxy("map") %>%
+      clearGroup("Points") %>%
+      clearGroup("Track") %>%
+      clearGroup("Home Range") %>%
+      clearGroup("DBScan Clusters") %>%
+      removeControl("map_title") %>%
+      addControl(
+        html = paste0("<div style='font-size: 16px; font-weight: bold; padding: 5px; background-color: rgba(255, 255, 255, 0.8); border-radius: 5px;'><b>View Mode:</b> ", season_title, "</div>"), 
+        position = "topleft", 
+        layerId = "map_title"
+      ) %>%
+      addLayersControl(
+        baseGroups = c("OpenStreetMap", "Esri Satellite"),
+        overlayGroups = c("Points", "Track", "Home Range", "DBScan Clusters"),
+        options = layersControlOptions(collapsed = FALSE),
+        position = "bottomleft"
+      ) %>%
+      addPolylines(data = selected_data, color = "#1E90FF", weight = 2, group = "Track") %>%
+      addCircleMarkers(data = selected_points, color = "#FF5733", radius = 1, group = "Points") %>%
+      fitBounds(
+        lng1 = bbox$xmin,
+        lat1 = bbox$ymin,
+        lng2 = bbox$xmax,
+        lat2 = bbox$ymax
+      )
+    
+    # Conditionally add Home Range
+    if (!is.null(mbp) && !st_is_empty(mbp)) {
+      map <- map %>% addPolygons(data = mbp, color = "#FF5733", weight = 2, fillOpacity = 0.2, group = "Home Range")
+      legend_colors <- c(legend_colors, "#FF5733")
+      legend_labels <- c(legend_labels, "Home Range")
+    }
+    
+    # Conditionally add DBScan Clusters
+    if (nrow(selected_dbscan) > 0) {
+      map <- map %>% addPolygons(data = selected_dbscan, color = "green", weight = 2, fillOpacity = 0.4, group = "DBScan Clusters")
+      legend_colors <- c(legend_colors, "green")
+      legend_labels <- c(legend_labels, "DBScan Clusters")
+    }
+    
+    map %>%
+      addLegend(position = "bottomright", 
+                colors = legend_colors, 
+                labels = legend_labels, 
+                title = "Legend",
+                layerId = "legend")
+
+    
+  })
+  
+  # --- Multiple Birds Map ---
+ 
+  
+  selected_points1 <- reactive({
+    req(input$bird_id_1)
+    bird_data[bird_data$id == input$bird_id_1, ]
+  })
+  
+  selected_points2 <- reactive({
+    req(input$bird_id_2)
+    bird_data[bird_data$id == input$bird_id_2, ]
+  })
+  
+  selected_data1 <- reactive({
+    req(input$bird_id_1)
+    bird_tracks[bird_tracks$id == input$bird_id_1, ]
+  })
+  
+  selected_data2 <- reactive({
+    req(input$bird_id_2)
+    bird_tracks[bird_tracks$id == input$bird_id_2, ]
+  })
+  
+  selected_dbscan1 <- reactive({
+    req(input$bird_id_1)
+    DB_Scan_data[DB_Scan_data$id == input$bird_id_1, ]
+  })
+  
+  selected_dbscan2 <- reactive({
+    req(input$bird_id_2)
+    DB_Scan_data[DB_Scan_data$id == input$bird_id_2, ]
+  })
+  
+  
+  
+  output$compare_map <- renderLeaflet({
+    leaflet() %>%
+      setView(lng = 9.581463104990185, lat = 46.81053552453712, zoom = 12) %>%
+      addTiles(group = "OpenStreetMap") %>%
+      addProviderTiles("Esri.WorldImagery", group = "Esri Satellite") %>%
+      addScaleBar(position = "bottomleft") %>%
+      addLayersControl(
+        baseGroups = c("OpenStreetMap", "Esri Satellite"),
+        overlayGroups = c("Bird 1 Points", "Bird 1 Track", "Bird 2 Points", "Bird 2 Track", "Home Range 1", "Home Range 2", "Intersection"),
+        options = layersControlOptions(collapsed = FALSE)
+      )
+  })
+  
+  observe({
+    req(input$bird_id_1, input$bird_id_2)
+    
+    # Fallback-Wert für `season_toggle`, falls nicht gesetzt
+    season_toggle_compare <- ifelse(is.null(input$season_toggle_compare), "full_season", input$season_toggle_compare)
+    
+    # Daten filtern
+    selected_data1 <- selected_data1()
+    selected_data2 <- selected_data2()
+    
+    selected_points1 <- selected_points1()
+    selected_points2 <- selected_points2()
+    
+    selected_dbscan1 <- selected_dbscan1()
+    selected_dbscan2 <- selected_dbscan2()
+    
+  
+    bbox2 <- st_bbox(st_union(st_as_sfc(st_bbox(selected_data1)), st_as_sfc(st_bbox(selected_data2))))
+    bbox2 <- as.list(bbox2)
+    
+    season_title <- switch(season_toggle_compare,
+                           "breeding_season" = "Breeding Season",
+                           "harvesting_season" = "Harvesting Season",
+                           "winter_season" = "Winter Season",
+                           "full_season" = "Full Dataset")
+    
+    # Season Filter
+    if (season_toggle_compare == "breeding_season") {
+      selected_points1 <- selected_points1[selected_points1$month >= 2 & selected_points1$month <= 6, ]
+      selected_points2 <- selected_points2[selected_points2$month >= 2 & selected_points2$month <= 6, ]
+      
+      selected_data1 <- selected_data1[selected_data1$month >= 2 & selected_data1$month <= 6, ]
+      selected_data2 <- selected_data2[selected_data2$month >= 2 & selected_data2$month <= 6, ]
+      
+      selected_dbscan1 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_1 & DB_Scan_data$season == "Breeding Time", ]
+      selected_dbscan2 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_2 & DB_Scan_data$season == "Breeding Time", ]
+      
+    } else if (season_toggle_compare == "harvesting_season") {
+      selected_points1 <- selected_points1[selected_points1$month >= 7 & selected_points1$month <= 10, ]
+      selected_points2 <- selected_points2[selected_points2$month >= 7 & selected_points2$month <= 10, ]
+      
+      selected_data1 <- selected_data1[selected_data1$month >= 7 & selected_data1$month <= 10, ]
+      selected_data2 <- selected_data2[selected_data2$month >= 7 & selected_data2$month <= 10, ]
+      
+      selected_dbscan1 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_1 & DB_Scan_data$season == "Harvesting Time", ]
+      selected_dbscan2 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_2 & DB_Scan_data$season == "Harvesting Time", ]
+      
+    } else if (season_toggle_compare == "winter_season") {
+      selected_points1 <- selected_points1[selected_points1$month %in% c(11, 12, 1), ]
+      selected_points2 <- selected_points2[selected_points2$month %in% c(11, 12, 1), ]
+      
+      selected_data1 <- selected_data1[selected_data1$month %in% c(11, 12, 1), ]
+      selected_data2 <- selected_data2[selected_data2$month %in% c(11, 12, 1), ]
+      
+      selected_dbscan1 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_1 & DB_Scan_data$season == "Winter", ]
+      selected_dbscan2 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_2 & DB_Scan_data$season == "Winter", ]
+      
+      
+    } else {
+      selected_dbscan1 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_1 & DB_Scan_data$season == "All Seasons", ]
+      selected_dbscan2 <- DB_Scan_data[DB_Scan_data$id == input$bird_id_2 & DB_Scan_data$season == "All Seasons", ]
+    }
+    
+    
+    # Home Range berechnen
+    mbp1 <- calculate_95_mcp(selected_points1)
+    mbp2 <- calculate_95_mcp(selected_points2)
+    
+    # Intersection berechnen:
+    hr_intersection  <- NULL
+    if (!is.null(mbp1) && !is.null(mbp2)) {
+      hr_intersection  <- tryCatch(
+        st_intersection(mbp1, mbp2),
+        error = function(e) NULL
+      )
+    } 
+
+    dbscan_intersection <- NULL
+    if (!is.null(selected_dbscan1) && !is.null(selected_dbscan2)) {
+      dbscan_intersection  <- tryCatch(
+        st_intersection(selected_dbscan1, selected_dbscan2),
+        error = function(e) NULL
+      )
+    }
+    
+    # Leaflet Proxy verwenden, um die Karte zu aktualisieren
+    legend_colors <- c("#FF5733", "#1E90FF")
+    legend_labels <- c("Bird 1", "Bird 2")
+    
+    overlayGroups <- c()
+    overlayGroups <- c(overlayGroups, "Bird 1", "Bird 2")
+    
+    
+    compare_map <- leafletProxy("compare_map") %>%
+      clearGroup("Bird 1") %>%
+      clearGroup("Bird 2") %>%
+      clearGroup("Home Range Bird 1") %>%
+      clearGroup("Home Range Bird 2") %>%
+      clearGroup("Home Range Intersection") %>%
+      clearGroup("DBScan Clusters Bird 1") %>%
+      clearGroup("DBScan Clusters Bird 2") %>%
+      clearGroup("Clusters Intersection") %>%
+      clearGroup("bird_intersection_notice") %>%
+      removeControl("bird_intersection_notice") %>%
+      clearGroup("DBScan Intersection") %>%
+      clearGroup("Heatmap") %>%
+      removeControl("map_title") %>%
+      addControl(
+        html = paste0("<div style='font-size: 16px; font-weight: bold; padding: 5px; background-color: rgba(255, 255, 255, 0.8); border-radius: 5px;'><b>View Mode:</b> ", season_title, "</div>"), 
+        position = "topleft", 
+        layerId = "map_title"
+      ) %>%
+      addPolylines(data = selected_data1, color = "#FF5733", weight = 2, fillOpacity = 0.5, group = "Bird 1") %>%
+      addCircleMarkers(data = selected_points1, color = "#FF5733", radius = 1, fillOpacity = 0.5, group = "Bird 1") %>%
+      addPolylines(data = selected_data2, color = "#1E90FF", weight = 2, fillOpacity = 0.5, group = "Bird 2") %>%
+      addCircleMarkers(data = selected_points2, color = "#1E90FF", radius = 1, fillOpacity = 0.5, group = "Bird 2") %>%
+      fitBounds(
+        lng1 = bbox2$xmin,
+        lat1 = bbox2$ymin,
+        lng2 = bbox2$xmax,
+        lat2 = bbox2$ymax
+      )
+    
+    # Hotspot Analysis: Render Heatmap
+    if (input$analysis_type == "hotspot") {
+      overlayGroups <- c(overlayGroups, "Heatmap")
+      points1 <- st_cast(st_geometry(selected_points1), "POINT")
+      points2 <- st_cast(st_geometry(selected_points2), "POINT")
+      heatmap_data <- st_as_sf(st_sfc(c(points1, points2)))
+      compare_map <- compare_map %>% addHeatmap(data = heatmap_data, radius = 20, blur = 20, max = 1, group = "Heatmap")
+    }
+    
+    # Home Range Analysis: Render Home Ranges
+    if (input$analysis_type == "home_range") {
+      overlayGroups <- c(overlayGroups, "Home Range")
+      
+      # Conditionally add Home Range for Bird 1
+      if (!is.null(mbp1) && !st_is_empty(mbp1)) {
+        compare_map <- compare_map %>% addPolygons(data = mbp1, color = "darkred", weight = 2, fillOpacity = 0.5, group = "Home Range Bird 1")
+        legend_colors <- c(legend_colors, "darkred")
+        legend_labels <- c(legend_labels, "Home Range Bird 1")
+      }
+      
+      # Conditionally add Home Range for Bird 2
+      if (!is.null(mbp2) && !st_is_empty(mbp2)) {
+        compare_map <- compare_map %>% addPolygons(data = mbp2, color = "darkblue", weight = 2, fillOpacity = 0.5, group = "Home Range Bird 2")
+        legend_colors <- c(legend_colors, "darkblue")
+        legend_labels <- c(legend_labels, "Home Range Bird 2")
+      }
+      
+      if (length(hr_intersection) > 0 && !st_is_empty(hr_intersection)) {
+        compare_map <- compare_map %>%
+            addPolygons(
+              data = hr_intersection,
+              color = "darkgreen",
+              weight = 2,
+              fillOpacity = 0.5,
+              group = "Home Range Intersection"
+            )
+          legend_colors <- c(legend_colors, "darkgreen")
+          legend_labels <- c(legend_labels, "Home Range Intersection")
+        } else {
+          compare_map <- compare_map %>%
+            addControl(
+              html = paste0(
+                "<div style='font-size: 14px; font-weight: bold; padding: 8px; background-color: rgba(255, 0, 0, 0.6); color: white; border-radius: 5px;'>
+          No intersection found between Bird ID: <b>", input$bird_id_1, "</b> and Bird ID: <b>", input$bird_id_2, "</b>
+        </div>"
+              ),
+              position = "topleft",
+              layerId = "bird_intersection_notice"
+            )
+          }
+      
+    }
+    
+    # Cluster Analysis: Render DBScan Clusters
+    if (input$analysis_type == "cluster") {
+      overlayGroups <- c(overlayGroups, "DBScan Clusters")
+      
+      # Conditionally add DBScan Clusters for Bird 1
+      if (nrow(selected_dbscan1) > 0) {
+        compare_map <- compare_map %>% addPolygons(data = selected_dbscan1, color = "darkred", weight = 2, fillOpacity = 0.4, group = "DBScan Clusters Bird 1")
+        legend_colors <- c(legend_colors, "darkred")
+        legend_labels <- c(legend_labels, "DBScan Clusters Bird 1")
+      }
+      
+      # Conditionally add DBScan Clusters for Bird 2
+      if (nrow(selected_dbscan2) > 0) {
+        compare_map <- compare_map %>% addPolygons(data = selected_dbscan2, color = "darkblue", weight = 2, fillOpacity = 0.4, group = "DBScan Clusters Bird 2")
+        legend_colors <- c(legend_colors, "darkblue")
+        legend_labels <- c(legend_labels, "DBScan Clusters Bird 2")
+      }
+      
+      if (!is.null(dbscan_intersection) && length(dbscan_intersection) > 0 && !all(st_is_empty(dbscan_intersection))) {
+        compare_map <- compare_map %>%
+          addPolygons(
+            data = dbscan_intersection,
+            color = "darkgreen",
+            weight = 2,
+            fillOpacity = 0.5,
+            group = "DBScan Intersection"
+          )
+        legend_colors <- c(legend_colors, "darkgreen")
+        legend_labels <- c(legend_labels, "DBScan Intersection")
+      } else {
+        compare_map <- compare_map %>%
+          addControl(
+            html = paste0(
+              "<div style='font-size: 14px; font-weight: bold; padding: 8px; background-color: rgba(255, 0, 0, 0.6); color: white; border-radius: 5px;'>
+          No intersection of DBSCan Clusters found between Bird ID: <b>", input$bird_id_1, "</b> and Bird ID: <b>", input$bird_id_2, "</b>
+        </div>"
+            ),
+            position = "topleft",
+            layerId = "bird_intersection_notice"
+          )
+      }
+      
+    }
+    
+    compare_map %>%
+      addLegend(position = "bottomright",
+                colors = legend_colors,
+                labels = legend_labels,
+                title = "Legend",
+                layerId = "legend") %>%
+      addLayersControl(
+        baseGroups = c("OpenStreetMap", "Esri Satellite"),
+        overlayGroups = overlayGroups,
+        options = layersControlOptions(collapsed = FALSE),
+        position = "bottomleft"
+      )
+  })
+  
+  
+  
+  # --- Analysis Plots (Multiple Bird View) ---
+
+  output$analysis_plot <- renderPlot({
+    
+    req(input$bird_id_1, input$bird_id_2)
+    
+    bird1_points <- selected_points1() 
+    bird2_points <- selected_points2()
+    season_toggle_compare <- ifelse(is.null(input$season_toggle_compare), "full_season", input$season_toggle_compare)
+    # Season Filter
+    if (season_toggle_compare == "breeding_season") {
+      bird1_points <- bird1_points[bird1_points$month >= 2 & bird1_points$month <= 6, ]
+      bird2_points <- bird2_points[bird2_points$month >= 2 & bird2_points$month <= 6, ]
+    } else if (season_toggle_compare == "harvesting_season") {
+      bird1_points <- bird1_points[bird1_points$month >= 7 & bird1_points$month <= 10, ]
+      bird2_points <- bird2_points[bird2_points$month >= 7 & bird2_points$month <= 10, ]
+    } else if (season_toggle_compare == "winter_season") {
+      bird1_points <- bird1_points[bird1_points$month %in% c(11, 12, 1), ]
+      bird2_points <- bird2_points[bird2_points$month %in% c(11, 12, 1), ]
+    }
+    
+    mbp1 <- calculate_95_mcp(bird1_points)
+    mbp2 <- calculate_95_mcp(bird2_points)
+    
+    intersection <- NULL
+    
+    if (!is.null(mbp1) && !is.null(mbp2)) {
+      intersection <- tryCatch(
+        st_intersection(mbp1, mbp2),
+        error = function(e) NULL
+      )
+    }
+    
+    sizes <- c(
+      if (!is.null(mbp1)) as.numeric(st_area(mbp1)) / 10000 else 0,
+      if (!is.null(mbp2)) as.numeric(st_area(mbp2)) / 10000 else 0,
+      if (!is.null(intersection) && length(intersection) > 0) as.numeric(st_area(intersection)) / 10000 else 0
+    )
+    
+    labels <- c("Bird 1", "Bird 2", "Intersection")
+    
+    ggplot(data.frame(Size = sizes, Label = labels), aes(x = Label, y = Size)) +
+      geom_bar(stat = "identity", alpha = 0.8, fill = c("#FF5733", "#1E90FF", "#32CD32")) +
+      labs(y = "Area (ha)", x = "") +
+      theme_minimal()
+  })
+  
+  
+  output$season_overview_multiple <- renderPlot({
+    points1 <- selected_points1()  
+    points2 <- selected_points2()
+    
+    # Überprüfen, ob Daten vorhanden sind
+    if (nrow(points1) == 0 && nrow(points2) == 0) {
+      plot.new()
+      text(0.5, 0.5, "No data available", cex = 1.5)
+      return()
+    }
+    
+    # Saison-Zuordnung für Bird 1
+    points1 <- points1 %>%
+      mutate(Season = case_when(
+        month >= 2 & month <= 6 ~ "Breeding Time",
+        month >= 7 & month <= 10 ~ "Harvesting Time",
+        month %in% c(11, 12, 1) ~ "Winter",
+        TRUE ~ "Unknown"
+      ))
+    
+    # Saison-Zuordnung für Bird 2
+    points2 <- points2 %>%
+      mutate(Season = case_when(
+        month >= 2 & month <= 6 ~ "Breeding Time",
+        month >= 7 & month <= 10 ~ "Harvesting Time",
+        month %in% c(11, 12, 1) ~ "Winter",
+        TRUE ~ "Unknown"
+      ))
+    
+    # Aggregation der Daten nach Season
+    dist1 <- points1 %>%
+      group_by(Season) %>%
+      summarise(Count = n()) %>%
+      mutate(Bird = "Bird 1")
+    
+    dist2 <- points2 %>%
+      group_by(Season) %>%
+      summarise(Count = n()) %>%
+      mutate(Bird = "Bird 2")
+    
+    # Daten kombinieren
+    distribution_data <- bind_rows(dist1, dist2)
+    
+    # Fehlende Seasons mit 0 auffüllen
+    all_seasons <- c("Breeding Time", "Harvesting Time", "Winter")
+    distribution_data <- distribution_data %>%
+      complete(Bird, Season = all_seasons, fill = list(Count = 0))
+    
+    # Überprüfen, ob Daten vorhanden sind
+    if (nrow(distribution_data) == 0) {
+      plot.new()
+      text(0.5, 0.5, "No data available", cex = 1.5)
+      return()
+    }
+    
+    # Histogramm erstellen
+    ggplot(distribution_data, aes(x = Season, y = Count, fill = Bird)) +
+      geom_bar(stat = "identity", position = "dodge", alpha = 0.8) +
+      labs(x = "Season", y = "Count") +
+      theme_minimal() +
+      scale_fill_manual(values = c("#FF5733", "#1E90FF")) +
+      theme(legend.position = "top")
+  })
+  
+  
+  
+  output$dbscan_clusters_comparison_plot <- renderPlot({
+    req(input$bird_id_1, input$bird_id_2)
+    
+    bird1_clusters <- selected_dbscan1()
+    bird2_clusters <- selected_dbscan2()
+    season_toggle_compare <- ifelse(is.null(input$season_toggle_compare), "full_season", input$season_toggle_compare)
+    
+    # Season Filter
+    if (season_toggle_compare == "breeding_season") {
+      bird1_clusters <- bird1_clusters[bird1_clusters$season == "Breeding Time", ]
+      bird2_clusters <- bird2_clusters[bird2_clusters$season == "Breeding Time", ]
+    } else if (season_toggle_compare == "harvesting_season") {
+      bird1_clusters <- bird1_clusters[bird1_clusters$season == "Harvesting Time", ]
+      bird2_clusters <- bird2_clusters[bird2_clusters$season == "Harvesting Time", ]
+    } else if (season_toggle_compare == "winter_season") {
+      bird1_clusters <- bird1_clusters[bird1_clusters$season == "Winter", ]
+      bird2_clusters <- bird2_clusters[bird2_clusters$season == "Winter", ]
+    }
+    
+    intersection <- NULL
+    
+    if (!is.null(bird1_clusters) && !is.null(bird2_clusters)) {
+      intersection <- tryCatch(
+        st_intersection(bird1_clusters, bird2_clusters),
+        error = function(e) NULL
+      )
+    }
+    
+    sizes <- c(
+      if (nrow(bird1_clusters) > 0) sum(as.numeric(st_area(bird1_clusters))) / 10000 else 0,
+      if (nrow(bird2_clusters) > 0) sum(as.numeric(st_area(bird2_clusters))) / 10000 else 0,
+      if (!is.null(intersection) && length(intersection) > 0) sum(as.numeric(st_area(intersection))) / 10000 else 0
+    )
+    
+    labels <- c("Bird 1 Clusters", "Bird 2 Clusters", "Intersection")
+    
+    ggplot(data.frame(Size = sizes, Label = labels), aes(x = Label, y = Size)) +
+      geom_bar(stat = "identity", alpha = 0.8, fill = c("#FF5733", "#1E90FF", "#32CD32")) +
+      labs(y = "Total Cluster Area (ha)", x = "") +
+      theme_minimal()
+  })
+  
+  
+}
+
+shinyApp(ui = ui, server = server)
