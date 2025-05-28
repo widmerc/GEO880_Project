@@ -1,0 +1,13 @@
+name: Project
+title: Project
+username: clauwi
+account: clauwi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14840300
+bundleId: 10356206
+url: https://clauwi.shinyapps.io/Project/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 01_EDA.qmd|02_Processing_RShiny.qmd
