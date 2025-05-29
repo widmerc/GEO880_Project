@@ -5,10 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nutcracker Semester Project</title>
-    <link
-      rel="icon"
-      href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTPKeSXL53ZWMr-SHv7THvKeX4FfAkZRAdYdsIohdwiw&s"
-    />
+    <link rel="icon" href="/Webseite/img/logo/favicon.ico" />
     <!-- Bootstrap Stylesheet -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
@@ -38,7 +35,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css"
       rel="stylesheet"
     />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css"
+      rel="stylesheet"
+    />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script>
@@ -48,17 +48,22 @@
 
   <body>
     <div
-      class="toast position-fixed top-50 start-50 translate-middle"
+      class="toast position-fixed top-50"
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
       data-bs-autohide="false"
-      style="z-index: 9999"
+      style="
+        z-index: 9999;
+        max-width: 90vw;
+        left: 5%;
+        transform: translateY(-50%);
+      "
     >
       <div class="toast-body">
         <h5>
           Disclaimer: This website is not entirely optimised for mobile devices.
-          Please use the desktop version instead.
+          Please open the website with a laptop.
         </h5>
         <div class="mt-2 pt-2 border-top">
           <button
@@ -161,10 +166,10 @@
         class="hero__overlay position-absolute top-0 left-0 right-0 bottom-0 bg-dark opacity-50"
       ></div>
       <div
-        class="position-absolute bottom-0"
-        style="z-index: 99999; transform: translateX(10px)"
+        class="caption-box position-absolute"
+        style="bottom: 8px; right: 8px; z-index: 2; font-size: 0.8rem"
       >
-        &copy; Vogelwarte.ch
+        &copy; vogelwarte.ch
       </div>
 
       <!-- Bild als Hintergrund -->
@@ -184,7 +189,7 @@
         <div class="text-white">
           <h1 class="hero__heading fw-bold mb-5">Movement Analysis</h1>
           <p class="lead mb-4">
-            This project analyzes home ranges and detected clusterss of the
+            This project analyzes home ranges and detected clusters of the
             spotted Nutcracker (Nucifraga caryocatactes) using GPS and sensor
             data from 115 tagged individuals.
           </p>
@@ -209,56 +214,64 @@
     <!-- Flying Birds -->
 
     <section class="steps container-custom" id="Abstract">
-      <div class="col-12 col-sm-12">
-        <div class="steps__content-width">
-          <span>01</span>
-          <h1 class="h2 mb-4">Abstract</h1>
-          <p class="mb-3" style="text-align: left">
-            The spotted nutcracker (<em>Nucifraga caryocatactes</em>) plays a
-            key role as the main seed disperser of the Swiss stone pine (<em
-              >Pinus cembra</em
-            >). However, its spatial behaviour and role in seed dispersal are
-            still not fully understood.
-          </p>
-          <p class="mb-3" style="text-align: left">
-            Using GPS data from 115 individuals collected over several years, we
-            investigated how home ranges vary across individuals, life stages
-            and seasons, and how much these areas overlap. Home ranges were
-            smallest during the breeding season and largest in autumn. Juveniles
-            showed wide-ranging dispersal movements, underlining their
-            importance for long-distance seed dispersal and population
-            connectivity.
-          </p>
-          <p class="mb-3" style="text-align: left">
-            Spatial overlap was common among individuals, especially within the
-            same area. However, it remains unclear whether these overlaps
-            represent simultaneous use. To visualise these patterns, we
-            developed an interactive <strong>RShiny app</strong> using 95%
-            minimum convex polygons and <strong>DBSCAN clustering</strong> to
-            identify frequently visited sites.
-          </p>
-          <p class="mb-4" style="text-align: left">
-            The tool offers great potential to explore movement data and
-            communicate insights to researchers, decision-makers, and the
-            public. Our findings show high behavioural and spatial variability,
-            highlighting the importance of understanding nutcracker
-            movements—especially in the context of dispersal, connectivity, and
-            climate change.
-          </p>
-          <a
-            href="https://www.vogelwarte.ch/de/voegel-der-schweiz/tannenhaeher/"
-            target="_blank"
-          >
-            Read more about this topic
-            <i class="bi bi-arrow-right"></i>
-          </a>
-        </div>
-      </div>
+  <div class="col-12 col-sm-12">
+    <div class="steps__content-width">
+      <span>01</span>
+      <h1 class="h2 mb-4">Abstract</h1>
 
-      <div class="row">
-        <div class="col-12" style="height: 20px"></div>
-      </div>
-    </section>
+      <p class="mb-3">
+        The spotted nutcracker (<em>Nucifraga caryocatactes</em>) serves as the
+        <strong>primary seed disperser of Swiss stone pine</strong>
+        (<em>Pinus cembra</em>), yet its spatial behaviour remains insufficiently studied.
+      </p>
+
+      <p class="mb-3">
+        GPS tracking data from <strong>115 individuals</strong> were analysed to examine
+        seasonal and individual variation in home range size, spatial overlap, and the
+        potential of <strong>interactive tools</strong> for visualising movement ecology.
+      </p>
+
+      <p class="mb-3">
+        Home ranges were <strong>smallest during the breeding season</strong> and largest
+        in autumn. Juvenile birds often showed extensive movements, indicating a role in
+        long-distance seed dispersal and population connectivity.
+      </p>
+
+      <p class="mb-3">
+        <strong>Spatial overlap</strong> between individuals was common, particularly within
+        the same valley. However, seasonal aggregation of data prevented conclusions about
+        simultaneous space use.
+      </p>
+
+      <p class="mb-3">
+        An <strong>interactive RShiny application</strong> was developed to support
+        exploration of movement patterns. Home ranges were estimated using
+        <strong>95% convex hulls</strong>, and <strong>DBSCAN clustering</strong> was applied
+        to identify frequently visited areas.
+      </p>
+
+      <p class="mb-4">
+        The resulting tool facilitates interpretation of movement data and
+        <strong>supports communication</strong> with researchers, decision-makers, and the
+        wider public. Findings contribute to understanding seed dispersal, spatial
+        connectivity, and potential responses to environmental change.
+      </p>
+
+      <a
+        href="https://www.vogelwarte.ch/de/voegel-der-schweiz/tannenhaeher/"
+        target="_blank"
+      >
+        Read more about this topic
+        <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12" style="height: 20px"></div>
+  </div>
+</section>
+
 
     <section class="steps steps--background" id="Introduction">
       <div class="col-12 col-sm-12 container-custom">
@@ -266,83 +279,81 @@
           <span>02</span>
           <h1 class="h2 mb-4">Introduction</h1>
 
-          <p class="mb-2" style="text-align: left">
-            The spotted nutcracker (<em>Nucifraga caryocatactes</em>) is a
-            <strong>highly specialized corvid</strong> found in coniferous
-            mountain forests across Eurasia (BirdLife International, 2024).
-            Through its mutualistic relationship with the Swiss stone pine (<em
-              >Pinus cembra</em
-            >), it plays a <strong>key ecological role</strong> (Närmann et al.,
-            2017). As the only species capable of completely removing and
-            dispersing stone pine seeds, it acts as the tree’s
-            <strong>primary seed disperser</strong> (Graf et al., 2024), storing
-            between <strong>30,000 and 100,000 seeds annually</strong> (Närmann
-            et al., 2017). Yet, important aspects of its breeding ecology and
-            habitat use remain <strong>poorly understood</strong> (Rolando,
-            1996).
+          <p class="mb-2">
+            The spotted Nutcracker (<em>Nucifraga caryocatactes</em>) is a
+            highly specialized species of corvid, which can be found in
+            coniferous mountain forests across Eurasia (BirdLife International,
+            2024). Through its mutually beneficial relationship with the Swiss
+            stone pine (<em>Pinus cembra</em>), it plays a
+            <strong
+              >key ecological role as the tree’s primary seed disperser</strong
+            >
+            (Närmann et al., 2017; Graf et al., 2024). Each individual collects,
+            moves and stores between 30’000 and 100’000 seeds annually (Närmann
+            et al., 2017). Despite its important role, many aspects of the
+            species ecology, in particular its breeding and habitat use, are
+            still poorly understood (Rolando, 1996).
           </p>
 
-          <p class="mb-2" style="text-align: left">
-            Movement patterns in nutcrackers are shaped by
-            <strong>seasonal resource availability</strong> and
-            <strong>individual behavioural strategies</strong> (Graf et al.,
-            2024; Rolando & Carisio, 1999). These differences impact where seeds
-            are cached and how likely they are to germinate. For instance, some
-            individuals cache close to harvest areas, while others select lower,
-            distant sites — possibly to
-            <strong>reduce winter energy costs</strong> (Graf et al., 2024).
+          <p class="mb-2">
+            Previous studies suggest that the movement patterns of spotted
+            nutcrackers are complex and shaped by the seasonal availability of
+            resources and individual behavioral strategies (Graf et al., 2024;
+            Rolando & Carisio, 1999).
+            <strong
+              >These individual differences in space use determine where seeds
+              are cached and how likely they are to germinate</strong
+            >. For example, Graf et al. recently showed that when it comes to
+            caching seeds, individuals display two different strategies...
           </p>
 
-          <p class="mb-2" style="text-align: left">
-            <strong>Individual variability in movement</strong> is especially
-            important. While some birds maintain small, stable home ranges,
-            others move more dynamically throughout the seasons (Rolando &
-            Carisio, 2001). In autumn, ranges often expand or shift across
-            valleys (Rolando, 1996).
-            <strong>Juveniles appear more exploratory</strong> and less
-            site-faithful than adults, who reuse familiar caching grounds.
+          <p class="mb-2">
+            Of particular interest for seed distribution is the variability in
+            individual movement behavior. While some nutcrackers maintain small,
+            consistent home ranges, others show extensive and dynamic ranging
+            patterns (Rolando & Carisio, 2001).
+            <strong
+              >Juveniles appear more exploratory and less site-faithful than
+              adults</strong
+            >, who reuse familiar caching territories.
           </p>
 
-          <p class="mb-2" style="text-align: left">
-            <strong>GPS tracking has revolutionised movement ecology</strong>,
-            enabling fine-scale reconstructions of home ranges and frequently
-            visited sites. When paired with environmental data, such tools
-            provide <strong>deeper insight into animal behaviour</strong> and
-            <strong>ecological function</strong> (Nathan et al., 2008; Graf et
-            al., 2024).
+          <p class="mb-2">
+            Since the first use of GPS-tags, movement ecology has benefited
+            greatly from the use of said technology to collect detailed data on
+            animal movements.
+            <strong
+              >These advances allow fine-scale reconstruction of home ranges and
+              frequently revisited sites</strong
+            >, deepening our understanding of ecological behavior (Graf et al.,
+            2024; Nathan et al., 2008).
           </p>
 
-          <p class="mb-2" style="text-align: left">
-            Despite these advances, <strong>many questions remain</strong> about
-            how habitat use differs among individuals or across seasons. It is
-            still unclear whether such variation is due to fixed strategies or
-            flexible responses to resource availability. These gaps are relevant
-            not only for understanding nutcracker ecology, but also for broader
-            concerns like <strong>population dynamics</strong>,
-            <strong>gene flow</strong>, and
-            <strong>ecosystem resilience</strong>.
+          <p class="mb-2">
+            Despite these tools and recent studies, we still lack a
+            comprehensive understanding of how habitat use differs among
+            individuals or over the year (Graf et al., 2024).
+            <strong>This represents a critical knowledge gap</strong>,
+            especially regarding consequences for population dynamics, gene flow
+            and ecosystem functioning.
           </p>
 
-          <p class="mb-2" style="text-align: left">
-            Recent studies have also raised concerns about the
+          <p class="mb-2">
+            Additionally, recent work has raised concerns about the
             <strong>stability of the mutualistic relationship</strong> between
             nutcrackers and stone pines under climate change. As tree
-            populations decline, nutcracker behaviour and survival could be
-            directly affected (Engelhardt et al., 2020; Traill et al., 2010).
-            Conversely, the birds may help stone pines colonise higher
-            elevations with more favourable microclimates, thereby
-            <strong>increasing forest resilience</strong> (Engelhardt et al.,
-            2020; Graf et al., 2024).
+            populations decline, nutcracker behaviour and survival may be
+            directly affected — or help enable forest resilience through upslope
+            colonisation (Engelhardt et al., 2020; Graf et al., 2024).
           </p>
 
-          <p class="mb-2" style="text-align: left">
-            This project aims to <strong>explore key gaps</strong> in our
-            understanding and provide a
-            <strong>foundation for future research</strong>. Specifically, we
-            focus on: (1) how home ranges differ among individuals and seasons,
-            (2) to what extent they overlap between individuals, and (3) how
-            <strong>interactive web applications</strong> can help visualise
-            these movement patterns.
+          <p class="mb-2">
+            Our project aims to
+            <strong>address key research gaps and support future studies</strong
+            >. Specifically, we focus on: (1) how home ranges differ among
+            individuals and seasons, (2) to what extent they overlap between
+            individuals, and (3) how interactive web applications can help
+            visualise these movement patterns.
           </p>
         </div>
       </div>
@@ -351,13 +362,14 @@
         <div class="col-12" style="height: 60px"></div>
       </div>
     </section>
+
     <section class="steps" id="Introduction">
       <div class="row align-self-center container-custom">
         <span>03</span>
         <h1 class="h2 mb-4">Research Questions</h1>
 
         <div class="row align-self-center">
-          <p class="mb-4" style="text-align: justify">
+          <p class="mb-4" style="text-align: left">
             This will be our research questions for the project:
           </p>
         </div>
@@ -382,7 +394,7 @@
                 <!-- Text -->
                 <div class="rq-content">
                   <h5 class="mb-1">Research Question 1</h5>
-                  <p class="mb-0">
+                  <p class="mb-0" style="text-align: left">
                     How do home ranges differ between individuals and across
                     seasons?
                   </p>
@@ -406,7 +418,7 @@
                 </div>
                 <div class="rq-content">
                   <h5 class="mb-1">Research Question 2</h5>
-                  <p class="mb-0">
+                  <p class="mb-0" style="text-align: left">
                     To what extent do individual home ranges overlap during and
                     across seasons?
                   </p>
@@ -430,7 +442,7 @@
                 </div>
                 <div class="rq-content">
                   <h5 class="mb-1">Research Question 3</h5>
-                  <p class="mb-0">
+                  <p class="mb-0" style="text-align: left">
                     How can an interactive R Shiny application support the
                     detection and visualisation of movement patterns?
                   </p>
@@ -481,7 +493,7 @@
             ></i>
           </span>
           <h5 class="fw-bold">Topic Search</h5>
-          <p class="text-muted mb-2 fw-bold">
+          <p class="text-muted mb-2 fw-bold" style="text-align: left">
             Internet & Articles (done by: Both)
           </p>
           <p class="text-muted">
@@ -537,7 +549,9 @@
           </span>
 
           <h5 class="fw-bold">Data Retrieval</h5>
-          <p class="text-muted mb-2 fw-bold">Vogelwarte.ch (done by: Robin)</p>
+          <p class="text-muted mb-2 fw-bold" style="text-align: left">
+            Vogelwarte.ch (done by: Robin)
+          </p>
           <p class="text-muted">
             The data was gathered from the Vogelwarte Switzerland (see
             <a href="#Data">here</a>).
@@ -581,7 +595,9 @@
             </svg>
           </span>
           <h5 class="fw-bold">Exploratory Data Analysis (EDA)</h5>
-          <p class="text-muted mb-2 fw-bold">R (done by: Robin)</p>
+          <p class="text-muted mb-2 fw-bold" style="text-align: left">
+            R (done by: Robin)
+          </p>
           <p class="text-muted">
             Before we started the main analysis, we took a first look at the
             data. We wanted to understand how the data is structured and if
@@ -618,7 +634,7 @@
                   >
                     GEO880 Project Repository
                   </a>
-                  – Includes all scripts and preprocessing steps. Main file:
+                  – Main file:
                   <code>01_EDA.qmd</code>.
                 </li>
                 <li>
@@ -626,8 +642,6 @@
                   <a href="https://rpubs.com/clauwi/EDA" target="_blank">
                     RPubs – Interactive EDA Overview
                   </a>
-                  – A rendered version of the exploratory data analysis with
-                  visualisations and explanations.
                 </li>
               </ul>
 
@@ -756,113 +770,161 @@
               </div>
 
               <!-- Yearly Daytime Charts -->
-              <h5 class="mt-4">Daytime Distribution of GPS Points (per Year)</h5>
-<div class="row g-3">
+              <h5 class="mt-4">
+                Daytime Distribution of GPS Points (per Year)
+              </h5>
+              <div class="row g-3">
+                <div class="row g-3">
+                  <!-- Loop-like manual entries -->
+                  <!-- Years: 2017, 2018, 2021, 2022, 2023, 2024 -->
 
-<div class="row g-3">
-  <!-- Loop-like manual entries -->
-  <!-- Years: 2017, 2018, 2021, 2022, 2023, 2024 -->
+                  <!-- Card: 2017 -->
+                  <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                      <a
+                        href="Webseite/img/EDA_daytime_dis_2017.png"
+                        data-lightbox="eda"
+                        data-title="Daytime Distribution – 2017"
+                        class="card-img-container"
+                      >
+                        <img
+                          src="Webseite/img/EDA_daytime_dis_2017.png"
+                          class="card-img-top"
+                          alt="Daytime Distribution 2017"
+                        />
+                      </a>
+                      <div class="card-body p-2 text-center">
+                        <small class="text-muted">2017</small>
+                      </div>
+                    </div>
+                  </div>
 
-  <!-- Card: 2017 -->
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm">
-      <a href="Webseite/img/EDA_daytime_dis_2017.png"
-         data-lightbox="eda"
-         data-title="Daytime Distribution – 2017"
-         class="card-img-container">
-        <img src="Webseite/img/EDA_daytime_dis_2017.png" class="card-img-top" alt="Daytime Distribution 2017">
-      </a>
-      <div class="card-body p-2 text-center"><small class="text-muted">2017</small></div>
-    </div>
-  </div>
+                  <!-- Card: 2018 -->
+                  <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                      <a
+                        href="Webseite/img/EDA_daytime_dis_2018.png"
+                        data-lightbox="eda"
+                        data-title="Daytime Distribution – 2018"
+                        class="card-img-container"
+                      >
+                        <img
+                          src="Webseite/img/EDA_daytime_dis_2018.png"
+                          class="card-img-top"
+                          alt="Daytime Distribution 2018"
+                        />
+                      </a>
+                      <div class="card-body p-2 text-center">
+                        <small class="text-muted">2018</small>
+                      </div>
+                    </div>
+                  </div>
 
-  <!-- Card: 2018 -->
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm">
-      <a href="Webseite/img/EDA_daytime_dis_2018.png"
-         data-lightbox="eda"
-         data-title="Daytime Distribution – 2018"
-         class="card-img-container">
-        <img src="Webseite/img/EDA_daytime_dis_2018.png" class="card-img-top" alt="Daytime Distribution 2018">
-      </a>
-      <div class="card-body p-2 text-center"><small class="text-muted">2018</small></div>
-    </div>
-  </div>
+                  <!-- Card: 2021 -->
+                  <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                      <a
+                        href="Webseite/img/EDA_daytime_dis_2021.png"
+                        data-lightbox="eda"
+                        data-title="Daytime Distribution – 2021"
+                        class="card-img-container"
+                      >
+                        <img
+                          src="Webseite/img/EDA_daytime_dis_2021.png"
+                          class="card-img-top"
+                          alt="Daytime Distribution 2021"
+                        />
+                      </a>
+                      <div class="card-body p-2 text-center">
+                        <small class="text-muted">2021</small>
+                      </div>
+                    </div>
+                  </div>
 
-  <!-- Card: 2021 -->
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm">
-      <a href="Webseite/img/EDA_daytime_dis_2021.png"
-         data-lightbox="eda"
-         data-title="Daytime Distribution – 2021"
-         class="card-img-container">
-        <img src="Webseite/img/EDA_daytime_dis_2021.png" class="card-img-top" alt="Daytime Distribution 2021">
-      </a>
-      <div class="card-body p-2 text-center"><small class="text-muted">2021</small></div>
-    </div>
-  </div>
+                  <!-- Card: 2022 -->
+                  <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                      <a
+                        href="Webseite/img/EDA_daytime_dis_2022.png"
+                        data-lightbox="eda"
+                        data-title="Daytime Distribution – 2022"
+                        class="card-img-container"
+                      >
+                        <img
+                          src="Webseite/img/EDA_daytime_dis_2022.png"
+                          class="card-img-top"
+                          alt="Daytime Distribution 2022"
+                        />
+                      </a>
+                      <div class="card-body p-2 text-center">
+                        <small class="text-muted">2022</small>
+                      </div>
+                    </div>
+                  </div>
 
-  <!-- Card: 2022 -->
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm">
-      <a href="Webseite/img/EDA_daytime_dis_2022.png"
-         data-lightbox="eda"
-         data-title="Daytime Distribution – 2022"
-         class="card-img-container">
-        <img src="Webseite/img/EDA_daytime_dis_2022.png" class="card-img-top" alt="Daytime Distribution 2022">
-      </a>
-      <div class="card-body p-2 text-center"><small class="text-muted">2022</small></div>
-    </div>
-  </div>
+                  <!-- Card: 2023 -->
+                  <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                      <a
+                        href="Webseite/img/EDA_daytime_dis_2023.png"
+                        data-lightbox="eda"
+                        data-title="Daytime Distribution – 2023"
+                        class="card-img-container"
+                      >
+                        <img
+                          src="Webseite/img/EDA_daytime_dis_2023.png"
+                          class="card-img-top"
+                          alt="Daytime Distribution 2023"
+                        />
+                      </a>
+                      <div class="card-body p-2 text-center">
+                        <small class="text-muted">2023</small>
+                      </div>
+                    </div>
+                  </div>
 
-  <!-- Card: 2023 -->
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm">
-      <a href="Webseite/img/EDA_daytime_dis_2023.png"
-         data-lightbox="eda"
-         data-title="Daytime Distribution – 2023"
-         class="card-img-container">
-        <img src="Webseite/img/EDA_daytime_dis_2023.png" class="card-img-top" alt="Daytime Distribution 2023">
-      </a>
-      <div class="card-body p-2 text-center"><small class="text-muted">2023</small></div>
-    </div>
-  </div>
+                  <!-- Card: 2024 -->
+                  <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                      <a
+                        href="Webseite/img/EDA_daytime_dis_2024.png"
+                        data-lightbox="eda"
+                        data-title="Daytime Distribution – 2024"
+                        class="card-img-container"
+                      >
+                        <img
+                          src="Webseite/img/EDA_daytime_dis_2024.png"
+                          class="card-img-top"
+                          alt="Daytime Distribution 2024"
+                        />
+                      </a>
+                      <div class="card-body p-2 text-center">
+                        <small class="text-muted">2024</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-  <!-- Card: 2024 -->
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm">
-      <a href="Webseite/img/EDA_daytime_dis_2024.png"
-         data-lightbox="eda"
-         data-title="Daytime Distribution – 2024"
-         class="card-img-container">
-        <img src="Webseite/img/EDA_daytime_dis_2024.png" class="card-img-top" alt="Daytime Distribution 2024">
-      </a>
-      <div class="card-body p-2 text-center"><small class="text-muted">2024</small></div>
-    </div>
-  </div>
-</div>
-
-</div>
-            </div>
-
-            <!-- Conclusion -->
-            <div class="mt-4 p-3 bg-light border rounded">
-              <h5>Conclusion</h5>
-              <p>
-                The Nutcracker dataset contains
-                <strong>49,758 GPS locations</strong> collected from
-                <strong>115 individuals</strong> over multiple years. Each data
-                point includes individual bird metadata, body measurements, and
-                seasonal context (34 variables total).
-              </p>
-              <p>
-                Due to different research focuses and technical constraints
-                (e.g., battery limits), the number of data points varies
-                significantly by individual, season, and year. Also, the
-                intervals between data points and GPS logging schedules differ
-                widely. These factors must be considered in any further
-                analysis.
-              </p>
+              <!-- Conclusion -->
+              <div class="mt-4 p-3 bg-light border rounded">
+                <h5>Conclusion</h5>
+                <p>
+                  The Nutcracker dataset contains
+                  <strong>49,758 GPS locations</strong> collected from
+                  <strong>115 individuals</strong> over multiple years. Each
+                  data point includes individual bird metadata, body
+                  measurements, and seasonal context (34 variables total).
+                </p>
+                <p>
+                  Due to different research focuses and technical constraints
+                  (e.g., battery limits), the number of data points varies
+                  significantly by individual, season, and year. Also, the
+                  intervals between data points and GPS logging schedules differ
+                  widely. These factors must be considered in any further
+                  analysis.
+                </p>
+              </div>
             </div>
           </div>
         </li>
@@ -870,10 +932,6 @@
         <li class="timeline-item mb-5">
           <span class="timeline-title"> </span>
           <h2 class="fw-bold">Analysis</h2>
-          <br />
-          <p class="text-muted">
-            After preprocessing in R, we will address our research questions.
-          </p>
         </li>
 
         <!-- Preprocessing R -->
@@ -936,83 +994,94 @@
 
           <div class="collapse" id="collapseExample1">
             <div class="card card-body" style="background-color: #dedede6c">
-              <h6 class="fw-bold">Overview of Preprocessing Steps</h6>
-              <ul>
-                <li>
-                  Data cleaning: removed missing coordinates and known faulty
-                  entries.
-                </li>
-                <li>
-                  Date conversion: standardised timestamps for temporal
-                  filtering.
-                </li>
-                <li>
-                  Spatial conversion: transformed data into spatial features
-                  (using <code>sf</code>).
-                </li>
-                <li>
-                  Season tagging: assigned each point to a seasonal category
-                  (Breeding, Harvesting, Winter).
-                </li>
-                <li>
-                  Track generation: created bird movement lines per ID and
-                  month.
-                </li>
-                <li>
-                  Clustering (DBScan): applied density-based clustering for each
-                  bird across seasons and overall.
-                </li>
-                <li>
-                  Export: saved processed data as <code>.geojson</code> and
-                  <code>.csv</code> for direct app integration.
-                </li>
-              </ul>
+              <div class="mb-3">
+                <h5 class="fw-bold">Preprocessing Overview</h5>
 
-              <h6 class="fw-bold mt-3">Additional Processing</h6>
-              <ul>
-                <li>
-                  Visual inspection of clusters to verify correctness (with
-                  <code>tmap</code>).
-                </li>
-                <li>
-                  Convex hull generation: created spatial polygons around
-                  clusters.
-                </li>
-                <li>
-                  Overlap matrix: calculated spatial overlaps between birds to
-                  study shared areas.
-                </li>
-                <li>
-                  Helper functions: provided tools to query overlapping bird
-                  IDs.
-                </li>
-              </ul>
+                <h6 class="fw-bold">Main Steps</h6>
+                <ul class="text-muted">
+                  <li>
+                    <strong>Data cleaning:</strong> Removed missing coordinates
+                    and known faulty entries.
+                  </li>
+                  <li>
+                    <strong>Date conversion:</strong> Standardised timestamps
+                    for temporal filtering.
+                  </li>
+                  <li>
+                    <strong>Spatial conversion:</strong> Converted data into
+                    spatial features (using <code>sf</code>).
+                  </li>
+                  <li>
+                    <strong>Season tagging:</strong> Assigned each point to a
+                    seasonal category (Breeding, Harvesting, Winter).
+                  </li>
+                  <li>
+                    <strong>Track generation:</strong> Created movement lines
+                    per bird and month.
+                  </li>
+                  <li>
+                    <strong>Clustering (DBSCAN):</strong> Identified frequently
+                    visited sites. DBSCAN was used for its ability to detect
+                    clusters without predefining their number and for robustness
+                    to noise. Parameters (<code>eps</code>, <code>minPts</code>)
+                    were adjusted manually based on movement scale and visual
+                    checks.
+                  </li>
+                  <li>
+                    <strong>Export:</strong> Saved results as
+                    <code>.geojson</code> and <code>.csv</code> for direct use
+                    in the app.
+                  </li>
+                </ul>
 
-              <hr />
+                <h6 class="fw-bold mt-3">Additional Processing</h6>
+                <ul class="text-muted">
+                  <li>
+                    <strong>Cluster review:</strong> Visual inspection to remove
+                    noise-related artefacts, important due to DBSCAN’s
+                    sensitivity.
+                  </li>
+                  <li>
+                    <strong>Home ranges:</strong> Created convex hulls using 95%
+                    of points to estimate space use. This is robust but may
+                    still overestimate area if outliers remain.
+                  </li>
+                  <li>
+                    <strong>Overlap matrix:</strong> Calculated spatial sharing
+                    between individuals. While it doesn’t prove simultaneous
+                    use, it highlights shared areas and possible connectivity.
+                  </li>
+                  <li>
+                    <strong>Helper functions:</strong> Implemented for
+                    identifying overlaps and filtering relevant data
+                    efficiently.
+                  </li>
+                </ul>
 
-              For easier access, we have published our code and results in two
-              formats:
-              <ul>
-                <li>
-                  <strong>GitHub Repository:</strong>
-                  <a
-                    href="https://github.com/widmerc/GEO880_Project/tree/main/Project"
-                    target="_blank"
-                  >
-                    GEO880 Project Repository
-                  </a>
-                  – This includes all scripts and preprocessing steps. The main
-                  file is
-                  <code>02_Processing.qmd</code>.
-                </li>
-                <li>
-                  <strong>Published Quarto Document:</strong>
-                  <a href="https://rpubs.com/clauwi/Processing" target="_blank">
-                    RPubs – Interactive Processing Overview
-                  </a>
-                  – A rendered version of the Processing Script.
-                </li>
-              </ul>
+                <hr />
+                <p class="text-muted">Code and results are available here:</p>
+                <ul class="text-muted">
+                  <li>
+                    <strong>GitHub Repository:</strong>
+                    <a
+                      href="https://github.com/widmerc/GEO880_Project/tree/main/Project"
+                      target="_blank"
+                    >
+                      GEO880 Project Repository
+                    </a>
+                    – Main file: <code>02_Processing.qmd</code>.
+                  </li>
+                  <li>
+                    <strong>Published Quarto Document:</strong>
+                    <a
+                      href="https://rpubs.com/clauwi/Processing"
+                      target="_blank"
+                    >
+                      RPubs – Interactive Processing Overview
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </li>
@@ -1021,11 +1090,7 @@
 
         <li class="timeline-item mb-5">
           <span class="timeline-title"> </span>
-          <h2 class="fw-bold">Result Visualization</h2>
-          <p class="text-muted">
-            <br />
-            This section is about the visualization of the results.
-          </p>
+          <h2 class="fw-bold">Result</h2>
         </li>
 
         <!-- Literature research -->
@@ -1037,8 +1102,8 @@
             ></i>
           </span>
           <h5 class="fw-bold">Writing Website Texts</h5>
-          <p class="text-muted mb-2 fw-bold">
-            Content & Structure (done by: Robin)
+          <p class="text-muted mb-2 fw-bold" style="text-align: left">
+            Content & Structure (done by: Both)
           </p>
           <p class="text-muted">
             Robin was responsible for writing the website texts. This included
@@ -1056,7 +1121,9 @@
             ></i>
           </span>
           <h5 class="fw-bold">Map Sketch</h5>
-          <p class="text-muted mb-2 fw-bold">Paper and Pen (done by: Claude)</p>
+          <p class="text-muted mb-2 fw-bold" style="text-align: left">
+            Paper and Pen (done by: Claude)
+          </p>
           <p class="text-muted">
             We chose the R Shiny framework to create our interactive web map. We
             tried to replicate the initial sketch of the web map and adapted the
@@ -1107,13 +1174,15 @@
             ></i>
           </span>
 
-          <h5 class="fw-bold">RShiny Development</h5>
-          <p class="text-muted mb-2 fw-bold">R (done by: Claude)</p>
+          <p class="text-muted mb-2 fw-bold" style="text-align: left">
+            R (done by: Claude)
+          </p>
           <p class="text-muted">
             We developed the entire interactive dashboard using R Shiny. It
             allows users to explore, filter, and compare bird tracking data
             through a dynamic and user-friendly web interface.
           </p>
+
           <p class="d-inline-flex gap-1">
             <a
               class="btn btn-outline-secondary"
@@ -1126,51 +1195,116 @@
               Show R Shiny Overview and Logic
             </a>
           </p>
+
           <div class="collapse" id="collapseExample_Rshiny">
             <div class="card card-body" style="background-color: #dedede6c">
               <div class="mb-3">
-                <h5 class="fw-bold">Overview</h5>
+                <h5 class="fw-bold">RShiny Development</h5>
+
+                <h6 class="fw-bold">Overview</h6>
                 <p class="text-muted">
-                  This section provides an overview of the interactive dashboard
-                  we built using <strong>R Shiny</strong>. The main goal was to
-                  create a <strong>simple and intuitive interface</strong> to
-                  explore bird tracking data, compare individuals, and analyse
-                  movement patterns. <br /><br />
-                  Users can easily navigate through individual birds using
-                  <strong>Next/Previous buttons</strong>, apply seasonal
-                  filters, and switch between various statistical views. The
-                  <strong>interactive map</strong> updates dynamically based on
-                  user input. <br /><br />
-                  A <strong>help (?) button</strong> is placed in the top right
-                  corner to offer clear guidance and explain each dashboard
-                  feature. This ensures that new users can easily understand the
-                  app without prior training.
+                  This R Shiny app was developed to allow interactive
+                  exploration of bird tracking data. It offers two main views: a
+                  single-bird analysis and a comparison mode for two
+                  individuals. Users can apply seasonal filters, view spatial
+                  movement patterns, and access summary statistics and plots.
+                </p>
+                <p class="text-muted">
+                  The interface is built around the Shiny <code>ui</code> and
+                  <code>server</code> model. Data is loaded from GeoJSON and CSV
+                  files, preprocessed in earlier steps. Interactivity is
+                  implemented using reactivity and event-driven components.
+                  Users can switch between birds, toggle seasonal data, and see
+                  live updates on maps and charts.
                 </p>
 
                 <h6 class="fw-bold mt-4">How the Code Works</h6>
                 <p class="text-muted">
-                  The app is built around the <code>ui</code> and
-                  <code>server</code> components of R Shiny. Data is loaded and
-                  pre-processed from GeoJSON and CSV files. <br /><br />
-                  - <code>reactive()</code> and <code>observeEvent()</code> are
-                  used to update visual elements when the user selects a
-                  different bird or season.<br />
-                  - The <code>mbp</code> variable stores the
-                  <strong>95% Minimum Bounding Polygon</strong> (MCP), which
-                  shows the home range of a bird based on spatial data. It is
-                  calculated with <code>st_convex_hull()</code> and filtered by
-                  distance quantiles.<br />
-                  - All maps are rendered using <strong>leaflet</strong>, with
-                  overlays for <em>Tracks</em>, <em>Points</em>,
-                  <em>Clusters</em>, and <em>Home Ranges</em>.<br />
-                  - Multiple plots are created using <code>ggplot2</code> and
-                  updated dynamically with seasonal or individual bird data.
+                  The app's logic is based on reactive programming. It uses
+                  conditional UI rendering, map proxies, and spatial operations
+                  to provide a responsive experience.
                 </p>
-                <hr />
-                <hr />
 
-                For easier access, we have published our code and results in two
-                formats:
+                <ul class="text-muted">
+                  <li>
+                    <strong>Bird and Season Selection:</strong>
+                    Bird IDs are loaded from tracking data. When the “multiple
+                    seasons only” filter is active, a function checks which
+                    individuals have data across two or more seasons (Breeding,
+                    Harvesting, Winter) and updates the selection list
+                    accordingly.
+                  </li>
+
+                  <li>
+                    <strong>Navigation:</strong>
+                    Users can switch between birds using Previous/Next buttons.
+                    The current index is stored with <code>reactiveVal</code>.
+                    The list respects any filters that are active (e.g. multiple
+                    seasons).
+                  </li>
+
+                  <li>
+                    <strong>Season Filter UI:</strong>
+                    Based on each bird’s available data, only valid seasons are
+                    shown as radio buttons. This is implemented using
+                    <code>renderUI()</code> and <code>uiOutput()</code> to keep
+                    the interface clean and relevant.
+                  </li>
+
+                  <li>
+                    <strong>Home Range Calculation:</strong>
+                    The home range is calculated using a 95% Minimum Convex
+                    Polygon (MCP). First, the centroid of all points is
+                    determined, then distances from the centroid are computed.
+                    The furthest 5% are excluded, and a convex hull is created
+                    from the rest using <code>st_convex_hull()</code>.
+                  </li>
+
+                  <li>
+                    <strong>DBScan Clusters:</strong>
+                    Spatial clusters were computed during preprocessing and
+                    stored as polygons in GeoJSON format. The app filters and
+                    visualises these per bird and season. Area comparisons are
+                    also included as bar plots.
+                  </li>
+
+                  <li>
+                    <strong>Map Rendering:</strong>
+                    All maps are rendered using <code>leaflet</code>. Map
+                    updates are handled with <code>leafletProxy()</code> to
+                    avoid full redraws. Layers for tracks, points, home ranges,
+                    and clusters are toggled via the control box.
+                  </li>
+
+                  <li>
+                    <strong>Intersection Logic:</strong>
+                    When two birds are selected, their home ranges and clusters
+                    are intersected using <code>st_intersection()</code>. If an
+                    intersection exists, it is shown on the map and in the
+                    plots. Otherwise, a message appears instead of an empty
+                    result.
+                  </li>
+
+                  <li>
+                    <strong>Heatmap:</strong>
+                    A simple heatmap view is provided in comparison mode. It
+                    merges points from both birds to visualise overall spatial
+                    intensity using <code>leaflet.extras::addHeatmap()</code>.
+                  </li>
+
+                  <li>
+                    <strong>Charts and Plots:</strong>
+                    Several plots are created using <code>ggplot2</code>: pie
+                    charts for seasonal data distribution, bar plots for home
+                    range sizes and cluster areas. All plots update dynamically
+                    based on current selection.
+                  </li>
+                </ul>
+
+                <hr />
+                <p class="text-muted">
+                  Code and resources are available in two formats:
+                </p>
                 <ul>
                   <li>
                     <strong>GitHub Repository:</strong>
@@ -1180,19 +1314,16 @@
                     >
                       GEO880 Project Repository
                     </a>
-                    – This includes all scripts and preprocessing steps. The
-                    main file is
-                    <code>03_RShiny_Map.qmd</code>.
+                    – includes scripts, input files, and documentation.
                   </li>
                   <li>
-                    <strong>Published Quarto Document:</strong>
+                    <strong>RPubs (Quarto Document):</strong>
                     <a
                       href="https://rpubs.com/clauwi/Shiny_Map"
                       target="_blank"
                     >
                       RPubs – Interactive Processing Overview
                     </a>
-                    – A rendered version of the Processing Script.
                   </li>
                 </ul>
               </div>
@@ -1208,7 +1339,7 @@
             ></i>
           </span>
           <h5 class="fw-bold">Website Creation</h5>
-          <p class="text-muted mb-2 fw-bold">
+          <p class="text-muted mb-2 fw-bold" style="text-align: left">
             HTML/CSS/JS (Bootstrap 5 Framework / done by: Claude)
           </p>
           <p class="text-muted">
@@ -1231,38 +1362,32 @@
           <div class="collapse" id="collapseExample2">
             <div class="card card-body" style="background-color: #dedede6c">
               <div class="mb-3">
-                <h5 class="fw-bold">Overview</h5>
+                <h5 class="fw-bold">Website Overview</h5>
                 <p class="text-muted">
-                  We created the website using <strong>Bootstrap 5</strong>, a
-                  modern CSS framework that enables mobile-first, responsive web
-                  design. The grid system was used to align content and
-                  components in a structured and flexible way. <br /><br />
-                  All sections are wrapped in a vertical
-                  <strong>timeline layout</strong>, with icons, expandable
-                  cards, and call-to-action buttons. It’s designed to work well
-                  across different devices and screen sizes.
+                  The website was built using <strong>Bootstrap 5</strong>,
+                  which provides a responsive grid system and clean layout
+                  tools. Content is organised in a vertical
+                  <strong>timeline structure</strong> with icons, buttons, and
+                  collapsible sections to present each project phase.
                 </p>
 
                 <h6 class="fw-bold mt-4">How the Code Works</h6>
                 <p class="text-muted">
-                  The layout uses the <code>.container</code>,
-                  <code>.row</code>, and <code>.col-*</code> classes to ensure
-                  proper spacing and alignment. <br /><br />
-                  Each project phase is a <code>.timeline-item</code> with
-                  custom icons and collapsible content using
-                  <code>data-bs-toggle="collapse"</code>. <br /><br />
-                  Additional Bootstrap classes like <code>.btn</code>,
-                  <code>.card</code>, and <code>.text-muted</code> were used to
-                  ensure a clean and consistent design.
+                  The layout uses <code>.container</code>, <code>.row</code>,
+                  and <code>.col-*</code> for alignment. Each timeline entry is
+                  a <code>.timeline-item</code> with an icon and collapsible
+                  content using <code>data-bs-toggle="collapse"</code>.
+                  Bootstrap utility classes like <code>.btn</code> and
+                  <code>.card</code> help structure the visual style.
                 </p>
 
-                <div class="text-center mt-4">
+                <div class="mt-4">
                   <img
                     src="./Webseite/img/bootstrap5.png"
                     alt="Bootstrap 5 Grid Example"
-                    class="rounded"
+                    class="img-fluid rounded d-block"
                     loading="lazy"
-                    style="height: 10rem"
+                    style="max-height: 10rem; height: auto; width: auto"
                   />
                   <figcaption class="blockquote-footer mt-2">
                     Bootstrap grid example
@@ -1270,18 +1395,20 @@
                   </figcaption>
 
                   <hr />
-                  <p>
-                    For easier access, we have published our code on our GitHub
-                    Project. You can find it here:
-                    <a
-                      href="https://github.com/widmerc/GEO880_Project"
-                      target="_blank"
-                    >
-                      GitHub – GEO880 Project Repository </a
-                    ><br />
-                    The Source Code for this Website is found here:
-                    <strong><code>index.html / Website Folder</code></strong>
-                  </p>
+                  <p>The full website code is available here:</p>
+                  <ul>
+                    <li>
+                      <strong>GitHub Repository:</strong>
+                      <a
+                        href="https://github.com/widmerc/GEO880_Project/tree/main"
+                        target="_blank"
+                      >
+                        GEO880 Project Repository
+                      </a>
+                      – contains all HTML, CSS, and JS files. Main file:
+                      <code>index.html</code>.
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -1318,6 +1445,27 @@
           </div>
         </div>
         <p>
+          If you need help, press the
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              width: 28px;
+              height: 28px;
+              background-color: #acacac;
+              color: rgb(0, 0, 0);
+              border-radius: 6px;
+              font-weight: bold;
+              font-family: sans-serif;
+            "
+          >
+            ?
+          </span>
+          button on the top right of the map. If you want to see the map in
+          fullscreen, click the button below.
+        </p>
+        <p>
           <a
             class="btn"
             style="
@@ -1327,7 +1475,7 @@
             "
             onclick="openFullscreen()"
           >
-            View Fullscreen
+            View Map in Fullscreen
           </a>
         </p>
         <div class="row">
@@ -1372,181 +1520,217 @@
     <section class="steps" id="Discussion">
       <div class="container-custom">
         <div class="row">
-          <div class="col-12 col-sm-6 col-12">
-            <div style="height: 35px"></div>
-
-            <img
-              src="./Webseite/img/Tannenhäher.jpg"
-              alt="Image 1"
-              class="img-fluid rounded"
-              loading="lazy"
-              style="
-                object-fit: cover;
-                object-position: right center;
-                width: 900px;
-                height: 730px;
-              "
-            />
-            <div class="position-absolute" style="z-index: 99">
-              &copy; Vogelwarte.ch
-            </div>
+          <div class="steps__content-width" style="text-align: justify">
+            <span>06</span>
+            <h1 class="h2">Discussion</h1>
           </div>
 
-          <div
-            class="col-12 col-sm-6 align-self-center justify-content-md-center"
-          >
-            <div class="steps__content-width" style="text-align: justify">
-              <span>06</span>
-              <h1 class="h2 mb-4">Discussion</h1>
+          <div class="row align-items-start mb-5">
+            <div class="col-12 col-md-12 col-xl-6 mb-3 mb-md-0">
+              <div class="position-relative">
+                <img
+                  src="https://www.nationalpark-stelvio.it/media/a4d4f148-973f-4c71-ad2e-2ba0b179c604/563b3-tiziano-salomone.jpg"
+                  alt="Nutcracker"
+                  class="img-fluid rounded shadow-sm"
+                  loading="lazy"
+                />
+                <div
+                  class="caption-box position-absolute"
+                  style="bottom: 8px; right: 8px; z-index: 2; font-size: 0.8rem"
+                >
+                  &copy; Nationalpark Stilfserjoch
+                </div>
+              </div>
+            </div>
 
-              <p>
-                The aim of this project was to
-                <strong>explore and visualise spatial behaviour</strong> of
-                spotted nutcrackers throughout the year. We focused on
-                <strong>seasonal home range changes</strong>,
-                <strong>overlaps between individuals</strong>, and the
-                <strong>potential of interactive web applications</strong> to
-                support data exploration.
-              </p>
+            <div class="col-12 col-md-12 col-xl-6">
+              <div style="text-align: justify">
+                <p>
+                  The aim of this project was to
+                  <strong>explore and visualise the spatial behaviour</strong>
+                  of spotted nutcrackers across seasons. We focused on
+                  <strong>home range changes</strong>,
+                  <strong>individual overlaps</strong>, and the
+                  <strong>potential of interactive web tools</strong>
+                  for data exploration.
+                </p>
 
-              <p>
-                Using GPS data from around 115 birds, we found that home ranges
-                varied strongly across individuals and seasons.
-                <strong>Breeding season ranges were smallest</strong>, likely
-                reflecting nesting behaviour, while movements expanded during
-                the harvesting season. Juveniles often travelled much farther
-                than adults – one even from Davos to Bormio and back –
-                highlighting their role in
-                <strong>long-distance seed dispersal</strong>.
-              </p>
+                <p>
+                  Based on GPS data from around 115 birds, we observed strong
+                  variation in home ranges across individuals and seasons.
+                  <strong>Breeding ranges were smallest</strong>, likely due to
+                  nesting, while movements expanded during harvesting. Juveniles
+                  often travelled farther – one even from Davos to Bormio and
+                  back – showing their role in
+                  <strong>long-distance seed dispersal</strong>.
+                </p>
 
-              <p>
-                Home range <strong>overlap was common</strong>, especially
-                within the same valley. However, since data was grouped by
-                season instead of year, we could not determine whether areas
-                were used <em>simultaneously</em> or just in similar periods
-                across years. For better temporal accuracy,
-                <strong>future work should combine season and year</strong> in
-                visualisation.
-              </p>
+                <p>
+                  <strong>Overlap between individuals was common</strong>,
+                  especially within the same valley. However, as data was
+                  grouped by season (not year), we couldn’t assess if areas were
+                  used <em>simultaneously</em>. Future work should
+                  <strong>combine season and year</strong> for better temporal
+                  resolution.
+                </p>
 
-              <p>
-                We used <strong>95% MCPs</strong> to estimate home ranges and
-                <strong>DBSCAN clustering</strong> to detect key locations.
-                While intuitive, MCPs may overestimate range size when
-                individuals make rare long-distance trips — especially in
-                juveniles — which can still be valuable for identifying
-                dispersal.
-              </p>
+                <p>
+                  We estimated home ranges using
+                  <strong>95% minimum convex polygons (MCPs)</strong>. While
+                  efficient, MCPs can overestimate area. Our 95% filtering
+                  helped reduce this, but
+                  <strong>methods like KDE</strong> could better reflect
+                  intensity of space use.
+                </p>
 
-              <p>
-                A core innovation was our
-                <strong>interactive RShiny app</strong>, which allows users to
-                explore individuals along with metadata such as life stage and
-                number of points. Although currently simplified for clarity,
-                <strong>the app shows great potential</strong> — especially with
-                future features like live data integration or year-specific
-                filtering.
-              </p>
+                <p>
+                  DBSCAN clustering identified frequently visited sites without
+                  predefined cluster counts, but results depend on parameter
+                  choices. We adjusted values manually and checked outputs
+                  visually. More robust methods like
+                  <strong>HDBSCAN or auto-tuning</strong> could improve
+                  consistency.
+                </p>
 
-              <p class="mb-4">
-                Overall, our results demonstrate
-                <strong>high behavioural and spatial variation</strong> in
-                nutcrackers. The web application provides a valuable foundation
-                for
-                <strong
-                  >research, communication, and conservation planning</strong
-                >.
-              </p>
+                <p>
+                  The <strong>interactive RShiny app</strong> enables intuitive
+                  exploration of movement data and supports both research and
+                  public outreach. Features like
+                  <strong>year filtering, statistical layers</strong>, or
+                  <strong>live data integration</strong>
+                  could enhance future versions.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="row" style="height: 50px"></div>
+        <h2 class="h3 mb-4">Main Findings</h2>
 
         <div
           class="row row-cols-sm-2 row-cols-1 row-cols-md-2 row-cols-lg-4 g-4"
         >
           <!-- Finding 1 -->
-          <div class="col findings__box">
+          <div class="col findings__box position-relative">
             <div
-              class="d-flex justify-content-center flex-column align-items-center text-center"
+              class="d-flex justify-content-center flex-column align-items-center text-center position-relative"
+              style="height: 140px"
             >
-              <i class="bi bi-book findings__icon"></i>
-              <div class="card-body">
-                <h5 class="card-title fw-bold">Result 1</h5>
-                <p class="card-text">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Odit
-                  aliquam illo molestias, molestiae accusantium architecto?
-                  Harum sint, saepe voluptas, velit doloremque quibusdam
-                  temporibus voluptatibus quia nesciunt impedit neque nulla.
-                  Expedita.
-                </p>
-              </div>
+              <i class="bi bi-compass findings__icon icon-default"></i>
+              <i class="bi bi-lightbulb findings__icon icon-hover"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5 class="card-title fw-bold">Home Range Variation</h5>
+              <p class="card-text">
+                Sizes varied by individual and season: smallest during breeding,
+                largest in autumn, especially for juveniles.
+              </p>
             </div>
           </div>
+
           <!-- Finding 2 -->
-          <div class="col findings__box">
+          <div class="col findings__box position-relative">
             <div
-              class="d-flex justify-content-center flex-column align-items-center text-center"
+              class="d-flex justify-content-center flex-column align-items-center text-center position-relative"
+              style="height: 140px"
             >
-              <i class="bi bi-book findings__icon"></i>
-              <div class="card-body">
-                <h5 class="card-title fw-bold">Result 2</h5>
-                <p class="card-text">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Odit
-                  aliquam illo molestias, molestiae accusantium architecto?
-                  Harum sint, saepe voluptas, velit doloremque quibusdam
-                  temporibus voluptatibus quia nesciunt impedit neque nulla.
-                  Expedita.
-                </p>
-              </div>
+              <i class="bi bi-geo-alt findings__icon icon-default"></i>
+              <i class="bi bi-lightbulb findings__icon icon-hover"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5 class="card-title fw-bold">Juvenile Dispersal</h5>
+              <p class="card-text">
+                Some juveniles moved long distances (e.g., Davos to Bormio),
+                underlining their role in seed dispersal and connectivity.
+              </p>
             </div>
           </div>
+
           <!-- Finding 3 -->
-          <div class="col findings__box">
+          <div class="col findings__box position-relative">
             <div
-              class="d-flex justify-content-center flex-column align-items-center text-center"
+              class="d-flex justify-content-center flex-column align-items-center text-center position-relative"
+              style="height: 140px"
             >
-              <i class="bi bi-book findings__icon"></i>
-              <div class="card-body">
-                <h5 class="card-title fw-bold">Result 3</h5>
-                <p class="card-text">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Odit
-                  aliquam illo molestias, molestiae accusantium architecto?
-                  Harum sint, saepe voluptas, velit doloremque quibusdam
-                  temporibus voluptatibus quia nesciunt impedit neque nulla.
-                  Expedita.
-                </p>
-              </div>
+              <i class="bi bi-intersect findings__icon icon-default"></i>
+              <i class="bi bi-lightbulb findings__icon icon-hover"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5 class="card-title fw-bold">Spatial Overlap</h5>
+              <p class="card-text">
+                Home range Overlaps were frequent within valleys, though
+                simultaneous use could not be confirmed due to seasonal
+                grouping.
+              </p>
             </div>
           </div>
+
           <!-- Finding 4 -->
-          <div class="col findings__box">
+          <div class="col findings__box position-relative">
             <div
-              class="d-flex justify-content-center flex-column align-items-center text-center"
+              class="d-flex justify-content-center flex-column align-items-center text-center position-relative"
+              style="height: 140px"
             >
-              <i class="bi bi-book findings__icon"></i>
-              <div class="card-body">
-                <h5 class="card-title fw-bold">Result 4</h5>
-                <p class="card-text">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Odit
-                  aliquam illo molestias, molestiae accusantium architecto?
-                  Harum sint, saepe voluptas, velit doloremque quibusdam
-                  temporibus voluptatibus quia nesciunt impedit neque nulla.
-                  Expedita.
-                </p>
-              </div>
+              <i class="bi bi-bar-chart-line findings__icon icon-default"></i>
+              <i class="bi bi-lightbulb findings__icon icon-hover"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5 class="card-title fw-bold">Interactive Dashboard</h5>
+              <p class="card-text">
+                The RShiny app enables easy exploration of GPS data and supports
+                both research and public outreach.
+              </p>
             </div>
           </div>
         </div>
       </div>
     </section>
-
     <!-- Section Three End-->
 
+    <!-- Section Four Start -->
+    <section class="steps steps--background" id="Conclusion">
+      <div class="container-custom">
+        <div class="row">
+          <div class="col-12">
+            <span>07</span>
+            <h1 class="h2 mb-4">Conclusion</h1>
+          </div>
+        </div>
+        <p>
+          This project successfully explored the
+          <strong>spatial ecology</strong> of spotted nutcrackers using GPS data
+          from over 100 individuals. We identified
+          <strong>strong seasonal variation in movement</strong>, with
+          <strong>small home ranges during breeding</strong> and
+          <strong>large-scale dispersal by juveniles</strong> in autumn.
+        </p>
+        <p>
+          Our <strong>interactive RShiny app</strong> allows users to filter and
+          analyse movement patterns visually,
+          <strong>bridging scientific research and public communication</strong
+          >. However, some <strong>methodological limitations</strong> remain:
+          the clustering method (DBSCAN) depends on
+          <strong>parameter tuning</strong>, and MCP-based home ranges may not
+          <strong>fully reflect actual space use</strong>. In addition,
+          <strong>seasonal aggregation may mask year-to-year variation</strong>,
+          limiting temporal resolution.
+        </p>
+        <p>
+          In future, integrating
+          <strong>more advanced movement models</strong> and ecological theory —
+          such as <strong>kernel density estimation (KDE)</strong>,
+          <strong>step selection analysis</strong> or
+          <strong>temporal overlap metrics</strong> — could deepen insights.
+          Still, our approach provides a
+          <strong>solid and accessible foundation</strong> for applied movement
+          research and communication.
+        </p>
+      </div>
+    </section>
+
     <!-- Section Five Start -->
-    <section class="steps steps--background" id="Data">
+    <section class="steps" id="Data">
       <div class="container-custom">
         <div class="row">
           <div class="col-12">
@@ -1555,25 +1739,25 @@
           </div>
         </div>
         <div
-          class="row row-cols-sm-2 row-cols-2 row-cols-md-4 row-cols-lg-4 g-5"
+          class="row row-cols-sm-2 row-cols-1 row-cols-md-4 row-cols-lg-4 g-5"
         >
-          <!-- Swisstopo -->
+          <!-- Vogelwarte -->
           <div class="col">
             <div class="card h-100 text-center">
               <img
-                src="https://play-lh.googleusercontent.com/QccNMDpVuIgS705fJE24A2EqN3ZEIWS8ZMlcV8NhQ3UQnw8deQh2oAo_S102fSvEWg"
+                src="Webseite/img/Schweizerische_Vogelwarte_Logo.png"
                 class="card-img-top source-image rounded"
                 alt="swisstopo"
               />
               <div class="card-body">
-                <h5 class="card-title">swisstopo</h5>
+                <h5 class="card-title">Vogelwarte Schweiz</h5>
                 <p class="card-text">
-                  <small>Swiss Federal Office of Topography</small>
+                  <small>The Swiss Ornithological Institute</small>
                 </p>
               </div>
               <div class="card-footer bg-transparent border-light">
                 <a
-                  href="https://www.swisstopo.admin.ch/de"
+                  href="https://www.vogelwarte.ch/de/"
                   target="_blank"
                   class="btn btn-sm btn-outline-secondary"
                   >go to</a
@@ -1593,7 +1777,9 @@
               <div class="card-body">
                 <h5 class="card-title">R</h5>
                 <p class="card-text">
-                  <small> Programming Language for the Web Map</small>
+                  <small>
+                    Programming Language for the Web Map and Analysis</small
+                  >
                 </p>
               </div>
               <div class="card-footer bg-transparent border-light">
@@ -1636,32 +1822,132 @@
         <div class="row">
           <div style="height: 30px"></div>
           <div class="col-12">
-            <!-- input image-->
-
             <h1 class="h2 mb-4">More Sources</h1>
             <hr />
             <p class="mb-2">
-              [1] Source 1,"
-              <i>Title ...</i>", Untertitel ...
+              <strong>BirdLife International.</strong> (2024).
+              <i
+                >Species factsheet: Northern Nutcracker Nucifraga
+                caryocatactes</i
+              >.
+              https://datazone.birdlife.org/species/factsheet/northern-nutcracker-nucifraga-caryocatactes
             </p>
             <p class="mb-2">
-              [1] Source 1,"
-              <i>Title ...</i>", Untertitel ...
+              <strong>Engelhardt, E. K., Neuschulz, E. L., & Hof, C.</strong>
+              (2020).
+              <i
+                >Ignoring biotic interactions overestimates climate change
+                effects: The potential response of the spotted nutcracker to
+                changes in climate and resource plants</i
+              >. Journal of Biogeography, 47(1), 143–154.
+              https://doi.org/10.1111/jbi.13699
             </p>
             <p class="mb-2">
-              [1] Source 1,"
-              <i>Title ...</i>", Untertitel ...
+              <strong
+                >Graf, V., Müller, T., Grüebler, M. U., Kormann, U. G.,
+                Albrecht, J., Hertel, A. G., Sorensen, M. C., Tschumi, M., &
+                Neuschulz, E. L.</strong
+              >
+              (2024).
+              <i
+                >Individual behaviour shapes patterns of bird-mediated seed
+                dispersal</i
+              >. Functional Ecology, 38(5), 1032–1043.
+              https://doi.org/10.1111/1365-2435.14556
+            </p>
+            <p class="mb-2">
+              <strong>Närmann, F., Küfmann, C., & Lena Neuschulz, E.</strong>
+              (2017).
+              <i
+                >Präferenzen des Tannenhähers Nucifraga caryocatactes beim
+                Anlegen von Samenverstecken</i
+              >. https://www.researchgate.net/publication/319036469
+            </p>
+            <p class="mb-2">
+              <strong
+                >Nathan, R., Getz, W. M., Revilla, E., Holyoak, M., Kadmon, R.,
+                Saltz, D., & Smouse, P. E.</strong
+              >
+              (2008).
+              <i
+                >A movement ecology paradigm for unifying organismal movement
+                research</i
+              >. Proceedings of the National Academy of Sciences, 105(49).
+              https://doi.org/10.1073/pnas.0800375105
+            </p>
+            <p class="mb-2">
+              <strong>Rolando, A.</strong> (1996).
+              <i
+                >Home range and habitat selection by the Nutcracker Nucifraga
+                caryocatactes during autumn in the Alps</i
+              >. Ibis, 138(3), 384–390.
+              https://doi.org/10.1111/j.1474-919x.1996.tb08055.x
+            </p>
+            <p class="mb-2">
+              <strong>Rolando, A., & Carisio, L.</strong> (1999).
+              <i
+                >Effects of resource availability and distribution on autumn
+                movements of the Nutcracker Nucifraga caryocatactes in the
+                Alps</i
+              >. Ibis, 141(1), 125–134.
+              https://doi.org/10.1111/j.1474-919x.1999.tb04271.x
+            </p>
+            <p class="mb-2">
+              <strong>Rolando, A., & Carisio, L.</strong> (2001).
+              <i
+                >Non-territorial systems in corvids: the case for the Nutcracker
+                (Nucifraga caryocatactes) in the Alps</i
+              >. https://doi.org/10.1046/j.1439-0361.2003.02057.x
+            </p>
+            <p class="mb-2">
+              <strong
+                >Sorensen, M. C., Mueller, T., Donoso, I., Graf, V., Merges, D.,
+                Vanoni, M., Fiedler, W., & Neuschulz, E. L.</strong
+              >
+              (2022).
+              <i
+                >Scatter-hoarding birds disperse seeds to sites unfavorable for
+                plant regeneration</i
+              >. Movement Ecology, 10(1).
+              https://doi.org/10.1186/s40462-022-00338-1
+            </p>
+            <p class="mb-2">
+              <strong
+                >Traill, L. W., Lim, M. L. M., Sodhi, N. S., & Bradshaw, C. J.
+                A.</strong
+              >
+              (2010).
+              <i
+                >Mechanisms driving change: Altered species interactions and
+                ecosystem function through global warming</i
+              >. Journal of Animal Ecology, 79(5).
+              https://doi.org/10.1111/j.1365-2656.2010.01695.x
             </p>
             <hr />
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="steps step" id="Data">
+      <div class="container-custom">
+        <div class="row">
+          <div style="height: 30px"></div>
+          <div class="col-12">
+            <h1 class="h2 mb-4">Wordcount</h1>
+            <p><strong> 19791 </strong>Words (incl. spaces)</p>
           </div>
         </div>
         <div class="row">
           <div style="height: 30px"></div>
           <div class="col-12">
-            <!-- input image-->
-
-            <h1 class="h2 mb-4">Wordcount</h1>
-            <p class="text-danger fw-bold">Dieses Projekt hat XXXX Wörter.</p>
+            <h1 class="h2 mb-4">Disclaimer</h1>
+            <p>
+              We used <strong>generative AI (ChatGPT)</strong> to support
+              technical tasks such as <strong>debugging</strong> and
+              <strong>structuring code</strong>. All scientific content,
+              analysis, and implementation ideas were developed independently.
+              The tool acted as a helper, not a creative or analytical driver.
+            </p>
           </div>
         </div>
       </div>
@@ -1669,32 +1955,36 @@
     <!-- Section Five End -->
 
     <!-- Section With 3 Col's Start -->
-    <!-- Section With 3 Col's Start -->
-    <!-- Section With 3 Col's Start -->
     <section class="bg-dark text-white py-6" id="section-about-us">
       <div style="height: 24px"></div>
 
       <div class="container-custom my-6">
         <span>09</span>
         <h1>About us</h1>
+        <p class="mb-3" style="text-align: justify">
+          For details on the division of tasks between team members, please
+          refer to the
+          <a href="#Methods"><strong>Methods section</strong></a
+          >, where individual contributions are outlined.
+        </p>
         <div class="row" style="height: 20px"></div>
         <div class="row">
           <!-- Claude Widmer -->
-          <div class="col-12 col-sm-6 mb-6">
+          <div
+            class="col-12 col-md-6 mb-5 d-flex flex-column align-items-center text-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="30%"
-              height="50%"
-              fill="currentColor"
-              class="bi bi-person-standing svg_hover"
               viewBox="0 0 16 16"
+              fill="white"
+              class="bi bi-person-standing svg_hover mb-3"
+              style="width: 80px; height: auto"
             >
               <path
                 d="M6 6.207v9.043a.75.75 0 0 0 1.5 0V10.5a.5.5 0 0 1 1 0v4.75a.75.75 0 0 0 1.5 0v-8.5a.25.25 0 1 1 .5 0v2.5a.75.75 0 0 0 1.5 0V6.5a3 3 0 0 0-3-3H6.236a1 1 0 0 1-.447-.106l-.33-.165A.83.83 0 0 1 5 2.488V.75a.75.75 0 0 0-1.5 0v2.083c0 .715.404 1.37 1.044 1.689L5.5 5c.32.32.5.754.5 1.207"
               />
               <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3" />
             </svg>
-            <div style="height: 12px"></div>
             <h3>Claude Widmer</h3>
             <p>
               Claude Widmer is studying Geographic Information Science and
@@ -1705,7 +1995,7 @@
             <a
               href="https://www.claudewidmer.ch/"
               target="_blank"
-              class="btn"
+              class="btn mt-2"
               style="
                 background-color: var(--accent_color);
                 color: white;
@@ -1717,15 +2007,15 @@
           </div>
 
           <!-- Robin Merz -->
-          <div class="col-12 col-sm-6 mb-6">
-            <div style="height: 12px"></div>
+          <div
+            class="col-12 col-md-6 mb-5 d-flex flex-column align-items-center text-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="30%"
-              height="50%"
-              fill="currentColor"
-              class="bi bi-person-standing svg_hover"
               viewBox="0 0 16 16"
+              fill="white"
+              class="bi bi-person-standing svg_hover mb-3"
+              style="width: 80px; height: auto"
             >
               <path
                 d="M6 6.207v9.043a.75.75 0 0 0 1.5 0V10.5a.5.5 0 0 1 1 0v4.75a.75.75 0 0 0 1.5 0v-8.5a.25.25 0 1 1 .5 0v2.5a.75.75 0 0 0 1.5 0V6.5a3 3 0 0 0-3-3H6.236a1 1 0 0 1-.447-.106l-.33-.165A.83.83 0 0 1 5 2.488V.75a.75.75 0 0 0-1.5 0v2.083c0 .715.404 1.37 1.044 1.689L5.5 5c.32.32.5.754.5 1.207"
@@ -1790,6 +2080,5 @@
     ></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
-
   </body>
 </html>

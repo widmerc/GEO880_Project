@@ -37,6 +37,10 @@ a2:hover {
   transition: 0.2s;
 }
 
+.steps p {
+  text-align: justify;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
@@ -56,6 +60,8 @@ a2:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-color);
 }
+
+
 
 /*
   * Custom Container
@@ -87,10 +93,44 @@ a2:hover {
 @media (max-width: 600px) {
   .container-custom {
     width: 95%;
-    padding-left: 10%;
-    padding-right: 10%;
+    padding-left: 7%;
+    padding-right: 7%;
   }
 }
+
+@media (min-width: 2500px) {
+  .container-custom {
+    width: 2300px;
+  }
+}
+
+/* 
+  * Custom Image Size
+  */
+
+  .responsive-float-image {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 576px) {
+  .responsive-float-image {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-float-image {
+    width: 45%;
+  }
+}
+
+@media (min-width: 992px) {
+  .responsive-float-image {
+    width: 35%;
+  }
+}
+
 
 /*
   * Main Header
@@ -381,6 +421,7 @@ SVG hover happy Benedikt
 /*
 Timeline / Methods
 */
+
 .timeline-with-icons {
   border-left: 6px solid var(--primary-color);
   position: relative;
@@ -417,13 +458,13 @@ Timeline / Methods
   left: -61px;
   top: 40px;
   background-color: var(--primary-color);
-  border-radius: 0; /* Entfernt das Oval */
-  height: 8px; /* Breite des Strichs */
-  width: 250px; /* Länge des Strichs */
+  border-radius: 0;
+  height: 8px;
+  width: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0; /* Kein innerer Abstand, da es ein Strich ist */
+  padding: 0;
   transition: transform 0.8s, background-color 0.8s;
 }
 
@@ -518,13 +559,34 @@ UN Goals Image hover
 Findings
 */
 
-.findings__box:hover .findings__icon {
-  color: var(--accent_color);
+.findings__box {
+  position: relative;
 }
 
 .findings__icon {
   font-size: 100px !important;
-  transition: all 0.5s;
+  transition: all 1s;
+  position: absolute;
+}
+
+/* Nur das Buch zuerst sichtbar */
+.icon-default {
+  opacity: 1;
+}
+
+/* Die Glühbirne ist zuerst unsichtbar */
+.icon-hover {
+  opacity: 0;
+}
+
+/* Hover-Effekt: Buch ausblenden, Birne einblenden */
+.findings__box:hover .icon-default {
+  opacity: 0;
+}
+
+.findings__box:hover .icon-hover {
+  opacity: 1;
+  color: var(--accent_color);
 }
 
 .text_bottom {
@@ -649,3 +711,48 @@ Findings
   opacity: 1;
 }
 
+.steps__discussion-image {
+  max-width: 300px;
+  height: auto;
+  float: right;
+  margin: 0 0 1rem 1.5rem;
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+html {
+  font-size: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 1600px) {
+  html {
+    font-size: 90%;
+  }
+}
+
+
+@media (max-width: 1200px) {
+  html {
+    font-size: 80%;
+  }
+}
+
+@media (max-width: 992px) {
+  html {
+    font-size: 70%;
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 65%;
+  }
+}
+
+@media (max-width: 576px) {
+  html {
+    font-size: 60%;
+  }
+}
