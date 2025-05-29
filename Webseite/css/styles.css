@@ -597,3 +597,55 @@ Findings
     scale: 0.5;
   }
 }
+
+
+/* EDA Carousel Caption */
+
+.caption-box {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-left: 4px solid var(--accent_color);
+  padding: 4px 8px;
+  display: inline-block;
+  color: var(--accent_color);
+}
+
+.carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23589c20' viewBox='0 0 8 8'%3E%3Cpath d='M4.5 0L3.09 1.41 5.67 4 3.09 6.59 4.5 8l4-4-4-4z' transform='rotate(180 4 4)'/%3E%3C/svg%3E");
+}
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23589c20' viewBox='0 0 8 8'%3E%3Cpath d='M4.5 0L3.09 1.41 5.67 4 3.09 6.59 4.5 8l4-4-4-4z'/%3E%3C/svg%3E");
+}
+
+/* Hover Style for Lightbox Image Cards */
+
+.card-img-container {
+  position: relative;
+  overflow: hidden;
+  cursor: zoom-in;
+  transition: border 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.card-img-container:hover {
+  border: 2px solid var(--accent_color);
+}
+
+.card-img-container::after {
+  content: "\1F50D"; /* 🔍 */
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 1.5rem;
+  color: var(--accent_color);
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  padding: 4px 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-img-container:hover::after {
+  opacity: 1;
+}
+
