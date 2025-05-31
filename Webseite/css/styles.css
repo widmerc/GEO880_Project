@@ -597,6 +597,8 @@ Findings
   color: red;
 }
 
+/* Flying Bird ->  https://dev.to/hoangdacviet/code-flying-bird-animation-with-css-on-web-app-3oca */
+
 .bird-wrapper {
   position: relative;
   z-index: 9998;
@@ -629,7 +631,6 @@ Findings
   animation-duration: 10s; /* Passe nach Wunsch an */
 }
 
-/* Nur die Verzögerung individuell setzen */
 .bird-container-one {
   animation-delay: 0s;
 }
